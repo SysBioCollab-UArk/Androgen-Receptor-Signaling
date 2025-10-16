@@ -8,7 +8,8 @@ Model()
 
 # Ligands & Receptors
 Monomer('EGF',['r'])
-Monomer('EGFR',['l','d','state'],{'state':['u','p']})
+Monomer('EGFR',['l','d','grb2_shc','state'],{'state':['u','p']})
+Monomer('Her2', ['d','grb2_shc','state'],{'state':['u','p']})
 
 # Androgen axis (Ligand + receptor + co-regulators)
 Monomer('DHT', ['r'])
@@ -29,9 +30,10 @@ Monomer('GSK3B', ['b'])
 Monomer('BAD', ['b'])
 
 # MAPK axis (optional downstream of EGFR/RAS)
-Monomer('GRB2', ['b'])
-Monomer('SOS', ['b'])
-Monomer('RAS', ['b'])
+Monomer('GRB2', ['r','r','sos','shc'])
+Monomer('SOS', ['grb2','ras'])
+Monomer('RAS', ['sos','state'],{'state':['GDP','GTP']})
+Monomer('Shc', ['r','r','grb2'])
 Monomer('RAF', ['b'])
 Monomer('MEK', ['b'])
 Monomer('ERK', ['b'])
