@@ -101,6 +101,24 @@ Rule('Her2p_binds_cPAcP',Her2(d=ANY, cpacp=None,state='p') + cPAcP(her2=None) |
 Her2(d=ANY, cpacp=1, state='p') % cPAcP(her2=1),
 kf_Her2_cPAcP, kr_Her2_cPAcP)
 
+Parameter('kf_dimer', 1)
+Parameter('kr_dimer', 1)
+Rule('EGFR_dimerization', EGFR(l=ANY, d=None)+ EGFR(l=ANY, d=None) | EGFR(l=ANY, d=1) % EGFR(l=ANY, d=1),
+kf_dimer, kr_dimer)
+
+Parameter('kf_phos', 1)
+Rule('EGFR_autophosphorylation', EGFR(d=ANY, state='u') >> EGFR(d=ANY, state='p'), kf_phos)
+
+Parameter('kf_EGFR_Shc', 1)
+Parameter('kr_EGFR_Shc', 1)
+Rule('EGFRp_binds_Shc', EGFR(state='p', grb2_shc=None) + Shc(egfr_her2=None) |
+EGFR(state='p', grb2_shc=1) % Shc(egfr_her2=1),kf_EGFR_Shc, kr_EGFR_Shc)
+
+Parameter('kf_Shc_Grb2', 1)
+Parameter('kr_Shc_Grb2', 1)
+Rule('Shcp_binds_Grb2',Shc(state='p', grb2=None) + Grb2(shc=None) | Shc(state='p', grb2=1) % Grb2(shc=1),
+kf_Shc_Grb2, kr_Shc_Grb2)
+
 
 # observable
 Observable('Lig_free', EGF(r=None))
