@@ -1,8 +1,8 @@
 from pysb import *
-import numpy as np
-import matplotlib.pyplot as plt
+from util import set_model, create_transcription_rules, create_translation_rules
 
 Model()
+set_model(model)  # put the model into the global namespace
 
 # monomers
 
@@ -64,18 +64,17 @@ Monomer('Pase6',  ['ap1'])
 Monomer('RNAp',   ['gene'])
 Monomer('g_cPAcP',['rnap','tf'])
 Monomer('g_sPAcP',['rnap','tf'])
-Monomer('g_CycD', ['rnap','tf','ets_p','ap1_p'])
-Monomer('g_PSA',  ['rnap','tf','ar_dimer'])
+Monomer('g_CycD', ['rnap','tf'])
+Monomer('g_PSA',  ['rnap','tf'])
 
 # 10) mRNAs and translation machinery
-Monomer('eIF4E',     ['_4ebp1','mrna'])
-Monomer('_40S',      ['mrna'])
+Monomer('eIF4E',     ['mrna_4ebp1'])
+Monomer('_40S',      ['mrna', '_60s'])
 Monomer('_60S',      ['_40s'])
-Monomer('mRNA_cPAcP',['eif4e','_40s'])
-Monomer('mRNA_sPAcP',['eif4e','_40s'])
-Monomer('mRNA_CycD', ['eif4e','_40s'])
-Monomer('mRNA_PSA',  ['eif4e','_40s'])
-
+Monomer('mRNA_cPAcP',['eif4e','_40s','elong'], {'elong': ['i','a']})
+Monomer('mRNA_sPAcP',['eif4e','_40s','elong'], {'elong': ['i','a']})
+Monomer('mRNA_CycD', ['eif4e','_40s','elong'], {'elong': ['i','a']})
+Monomer('mRNA_PSA',  ['eif4e','_40s','elong'], {'elong': ['i','a']})
 
 # 11) Protein products (sinks in your list)
 Monomer('CycD')
@@ -91,48 +90,33 @@ Initial(EGFR(l=None, d=None, grb2_shc=None, state='u', loc='mem'), Rec_0)
 
 
 # rules
-def transcription_rule(protein, kf_kr_kcat, tfs=None, k_on_off=None):
 
-    if len(np.array(kf_kr_kcat).shape) == 1:
-        kf_kr_kcat = [kf_kr_kcat]
+# CycD transcription
+tfs = [ETS(erk=None,gene=None,state='p'), AP1(erk=None,gene=None,state='p')]
+kf_kr_kcat = [
+    [4.952e-5, 0.1104, 1.099e-2],  # basal
+    [0.2931, 9.037e-3, 1.156e-2],  # ETS-p
+    [0.4288, 2.945e-2, 3.292e-2]]  # AP1-p
+k_tf_on_off = [[0.138, 1.26], [0.3726, 2.171]]  # ETS-p, AP1-p
+k_deg = 0.8094
+create_transcription_rules(CycD, kf_kr_kcat, k_deg, tfs=tfs, k_tf_on_off=k_tf_on_off)
 
-    if len(np.array(tfs).shape) == 0:
-        tfs = [tfs]
-        k_on_off = [k_on_off]
-
-    gene = model.monomers['g_%s' % protein.name]
-    mrna = model.monomers['mRNA_%s' % protein.name]
-
-    kf, kr, kcat = \
-        [Parameter('%s_%s_RNAp' % (k, gene.name), kf_kr_kcat[0][i]) for i, k in enumerate(['kf', 'kr', 'kcat'])]
-    Rule('%s_binds_RNAp' % gene.name,
-         gene(rnap=None, tf=None) + RNAp(gene=None) | gene(rnap=1, tf=None) % RNAp(gene=1), kf, kr)
-    Rule('%s_RNAp_transcribe' % gene.name,
-         gene(rnap=1, tf=None) % RNAp(gene=1) >> gene(rnap=1, tf=None) % RNAp(gene=1) + mrna(eif4e=None,_40s=None),
-         kcat)
-
-    if tfs is not None:
-        for i, tf in enumerate(tfs):
-            k_on, k_off = [Parameter('%s_%s_%s' % (k, gene.name, tf.monomer.name), k_on_off[i][j])
-                           for j, k in enumerate(['kon', 'koff'])]
-            Rule('%s_binds_%s' % (gene.name, tf.monomer.name),
-                 gene(rnap=None, tf=None) + tf(gene=None) | gene(rnap=None, tf=1) % tf(gene=1), k_on, k_off)
-
-            kf, kr, kcat = [Parameter('%s_%s_%s_RNAp' % (k, gene.name, tf.monomer.name), kf_kr_kcat[i+1][j])
-                                      for j, k in enumerate(['kf', 'kr', 'kcat'])]
-            Rule('%s_%s_binds_RNAp' % (gene.name, tf.monomer.name),
-                 gene(rnap=None, tf=1) % tf(gene=1) + RNAp(gene=None) | gene(rnap=2, tf=1) % tf(gene=1) % RNAp(gene=2),
-                 kf, kr)
-            Rule('%s_%s_RNAp_transcribe' % (gene.name, tf.monomer.name),
-                 gene(rnap=2, tf=1) % tf(gene=1) % RNAp(gene=2) >> gene(rnap=2, tf=1) % tf(gene=1) % RNAp(gene=2)
-                 + mrna(eif4e=None, _40s=None), kcat)
+# CycD translation
+kf_kr = [
+    [2.137e-2, 8.14e-3],   # eIF4E
+    [8.773e-2, 5.877e-3],  # 40S
+    [0.7418, 1.306e-3]     # 60S
+]
+k_release = 1.194
+k_elongate = 0.9399
+k_terminate = 1.781
+k_deg = 6.123e-3
+create_translation_rules(CycD, kf_kr, k_release, k_elongate, k_terminate, k_deg)
 
 
-transcription_rule(CycD, [[1, 1, 1], [1, 1, 1]], tfs=ETS(erk=None,gene=None,state='p'), k_on_off=[1, 1])
+# Add other transcription and translation rules
+# ...
 
-print(model.rules)
-
-quit()
 
 Parameter('kf_LR', 1)
 Parameter('kr_LR', 1)
@@ -171,6 +155,8 @@ Observable('Rec_unphos', EGFR(state='u'))
 Observable('Rec_phos', EGFR(state='p'))
 
 if __name__ == '__main__':
+    import numpy as np
+    import matplotlib.pyplot as plt
     from pysb.simulator import ScipyOdeSimulator
 
     # simulation commands
