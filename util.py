@@ -1,5 +1,5 @@
 from pysb import *
-from pysb import MonomerPattern
+from pysb import MonomerPattern, ComplexPattern
 from pysb.util import alias_model_components
 import numpy as np
 
@@ -36,35 +36,52 @@ def create_transcription_rules(prot_monomer, kf_kr_kcat, k_deg, tfs=None, k_tf_o
     # RNAp binds to gene and transcribes mRNA
     kf, kr, kcat = \
         [Parameter('%s_%s_RNAp' % (k, gene.name), kf_kr_kcat[0][i]) for i, k in enumerate(['kf', 'kr', 'kcat'])]
+    tf_sites = [site for site in gene.sites if 'tf' in site]
+    tf_sites_dict = dict(list(zip(tf_sites, [None] * len(tf_sites))))
     Rule('%s_binds_RNAp' % gene.name,
-         gene(rnap=None, tf=None) + RNAp(gene=None) |
-         gene(rnap=1, tf=None) % RNAp(gene=1), kf, kr)
+         gene(rnap=None, **tf_sites_dict) + RNAp(gene=None) |
+         gene(rnap=1, **tf_sites_dict) % RNAp(gene=1), kf, kr)
     Rule('%s_RNAp_transcribes' % gene.name,
-         gene(rnap=1, tf=None) % RNAp(gene=1) >>
-         gene(rnap=1, tf=None) % RNAp(gene=1) + mrna(eif4e=None,_40s=None,elong='i'), kcat)
+         gene(rnap=1, **tf_sites_dict) % RNAp(gene=1) >>
+         gene(rnap=1, **tf_sites_dict) % RNAp(gene=1) + mrna(eif4e=None,_40s=None,elong='i'), kcat)
 
     # mRNA degradation
     k_deg = Parameter('kdeg_%s' % mrna.name, k_deg)
     Rule('%s_degrades' % mrna.name, mrna(eif4e=None,_40s=None,elong='i') >> None, k_deg)
 
     if tfs is not None:
-        for i, tf in enumerate(tfs):
+        for i, (tf, tf_name) in enumerate(tfs):
             # transcription factor (TF) binds to gene
-            k_on, k_off = [Parameter('%s_%s_%s' % (k, gene.name, tf.monomer.name), k_tf_on_off[i][j])
+            k_on, k_off = [Parameter('%s_%s_%s' % (k, gene.name, tf_name), k_tf_on_off[i][j])
                            for j, k in enumerate(['kon', 'koff'])]
-            Rule('%s_binds_%s' % (gene.name, tf.monomer.name),
-                 gene(rnap=None, tf=None) + tf(gene=None) |
-                 gene(rnap=None, tf=1) % tf(gene=1), k_on, k_off)
+            if isinstance(tf, MonomerPattern):
+                gene_unbound = gene(rnap=None, tf=None)
+                gene_bound = gene(rnap=None, tf=50)
+                tf_bound = tf(gene=50)
+            elif isinstance(tf, ComplexPattern):
+                site_conditions = dict(
+                    [('rnap', None)] + [('tf%d' % (i + 1), None) for i in range(len(gene.sites) - 1)])
+                gene_unbound = MonomerPattern(gene, site_conditions, None)
+                site_conditions = dict(
+                    [('rnap', None)] + [('tf%d' % (i + 1), 50 + i) for i in range(len(gene.sites) - 1)])
+                gene_bound = MonomerPattern(gene, site_conditions, None)
+                mp_gene_sites = [mp for mp in tf.monomer_patterns if 'gene' in mp.monomer.sites]
+                tf_bound = ComplexPattern([mp(gene=50 + i) for i, mp in enumerate(mp_gene_sites)] +
+                                          [mp for mp in tf.monomer_patterns if mp not in mp_gene_sites],
+                                          None)
+            Rule('%s_binds_%s' % (gene.name, tf_name),
+                 gene_unbound + tf | gene_bound % tf_bound, k_on, k_off)
 
             # RNAp binds to TF-bound gene and transcribes mRNA
-            kf, kr, kcat = [Parameter('%s_%s_%s_RNAp' % (k, gene.name, tf.monomer.name), kf_kr_kcat[i+1][j])
-                                      for j, k in enumerate(['kf', 'kr', 'kcat'])]
-            Rule('%s_%s_binds_RNAp' % (gene.name, tf.monomer.name),
-                 gene(rnap=None, tf=1) % tf(gene=1) + RNAp(gene=None) |
-                 gene(rnap=2, tf=1) % tf(gene=1) % RNAp(gene=2), kf, kr)
-            Rule('%s_%s_RNAp_transcribes' % (gene.name, tf.monomer.name),
-                 gene(rnap=2, tf=1) % tf(gene=1) % RNAp(gene=2) >>
-                 gene(rnap=2, tf=1) % tf(gene=1) % RNAp(gene=2) + mrna(eif4e=None, _40s=None,elong='i'), kcat)
+            if len(kf_kr_kcat) > i + 1:
+                kf, kr, kcat = [Parameter('%s_%s_%s_RNAp' % (k, gene.name, tf_name), kf_kr_kcat[i+1][j])
+                                          for j, k in enumerate(['kf', 'kr', 'kcat'])]
+                Rule('%s_%s_binds_RNAp' % (gene.name, tf_name),
+                     gene(rnap=None, tf=50) % tf_bound + RNAp(gene=None) |
+                     gene(rnap=2, tf=50) % tf_bound % RNAp(gene=2), kf, kr)
+                Rule('%s_%s_RNAp_transcribes' % (gene.name, tf_name),
+                     gene(rnap=2, tf=50) % tf_bound % RNAp(gene=2) >>
+                     gene(rnap=2, tf=50) % tf_bound % RNAp(gene=2) + mrna(eif4e=None, _40s=None,elong='i'), kcat)
 
 
 def create_translation_rules(prot_monomer, kf_kr, k_release, k_elongate, k_terminate, k_deg):
