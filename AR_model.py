@@ -2,7 +2,12 @@ from pysb import *
 from pysb import MonomerPattern, as_complex_pattern
 from util import set_model, create_transcription_rules, create_translation_rules
 from itertools import product as cartesian_product
-from copy import deepcopy
+
+# Reimplementation of the androgen receptor signaling model from:
+# Tasseff R, Nayak S, Salim S, Kaushik P, Rizvi N, Varner JD (2010)
+# "Analysis of the Molecular Networks in Androgen Dependent and Independent Prostate Cancer
+# Revealed Fragile and Robust Subsystems". PLoS ONE 5(1): e8864.
+# https://doi.org/10.1371/journal.pone.0008864
 
 Model()
 set_model(model)  # put the model into the global namespace
