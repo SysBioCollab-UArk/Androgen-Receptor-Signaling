@@ -249,10 +249,32 @@ Rule('Her2_2_phosphorylation',
      kf_Her2_2_phos, kr_Her2_2_phos)
 
 # EGFR-EGF-2-p+Grb2	↔	EGFR-EGF-2-p-Grb2	1.068E0±3.282E0	7.018E-1±4.517E-1	-
-# TODO ...
+# TODO ... not sure about the value?
+Parameter('kf_EGFR_EGF_2_p_binds_Grb2', 1.068)
+Parameter('kr_EGFR_EGF_2_p_binds_Grb2', 0.7018)
+Rule('EGFR_EGF_2_p_binds_Grb2',
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=None, state='p', loc='extra') +
+     Grb2(sos=None, shc=None, egfr_her2=None) |
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=4, state='p', loc='extra') %
+     Grb2(sos=None, shc=None, egfr_her2=4),
+     kf_EGFR_EGF_2_p_binds_Grb2, kr_EGFR_EGF_2_p_binds_Grb2)
 
 # EGFR-EGF-2-p-Grb2+Sos	↔	EGFR-EGF-2-p-Grb2-Sos	4.244E-1±6.357E-1	3.506E0±5.793E0	-
 # TODO ...
+Parameter('kf_EGFR_EGF_2_p_Grb2_binds_Sos', 4.244E-1)
+Parameter('kr_EGFR_EGF_2_p_Grb2_binds_Sos', 3.506)
+Rule('EGFR_EGF_2_p_Grb2_binds_Sos',
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=1, loc='extra') % EGFR(l=2, d=3, grb2_shc=4, state='p', loc='extra') %
+     Grb2(sos=None, shc=None, egfr_her2=4) + Sos(grb2=None, ras_erk=None, pi3k=None) |
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=4, state='p', loc='extra') %
+     Grb2(sos=5, shc=None, egfr_her2=None) % Sos(grb2=5, ras_erk=None, pi3k=None),
+     kf_EGFR_EGF_2_p_Grb2_binds_Sos, kr_EGFR_EGF_2_p_Grb2_binds_Sos)
+
+
 
 # EGFR-EGF-2-p-Grb2-Sos	↔	EGFR-EGF-2-p+Grb2-Sos	1.159E0±2.35E0	5.034E-2±6.075E-2	-
 # TODO ...
