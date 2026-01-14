@@ -325,15 +325,32 @@ Rule('EGFR_EGF_2_p_Grb2_Sos_activates_Ras',
      Ras(sos=6, gap=None, raf=None, state='GDP'),
      kcat_EGFR_EGF_2_p_Grb2_Sos_activates_Ras)
 
-
-
-
 # Her2-2-p+Grb2	↔	Her2-2-p-Grb2	1.976E-2±2.734E-2	9.558E-1±8.677E-1	-
 # TODO ...
-
+Parameter('kf_Her2_2_p_binds_Grb2', 1.976E-1)
+Parameter('kr_Her2_2_p_binds_Grb2', 9.558E-1)
+Rule('Her2_2_p_binds_Grb2',
+     Her2(d=3, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=None, cpacp=None, state='p') +
+     Grb2(sos=None, shc=None, egfr_her2=None) |
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Grb2(sos=None, shc=None, egfr_her2=4),
+     kf_Her2_2_p_binds_Grb2, kr_Her2_2_p_binds_Grb2)
 # Her2-2-p-Grb2+Sos	↔	Her2-2-p-Grb2-Sos	2.395E-1±2.953E-1	1.49E0±2.296E0	-
 # TODO ...
-
+Parameter('kf_Her2_2_p_Grb2_binds_Sos', 2.395E-1)
+Parameter('kr_Her2_2_p_Grb2_binds_Sos', 1.49E0)
+Rule('Her2_2_p_Grb2_binds_Sos',
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Grb2(sos=None, shc=None, egfr_her2=4) +
+     Sos(grb2=None, ras_erk=None, pi3k=None) |
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Grb2(sos=5, shc=None, egfr_her2=4) %
+     Sos(grb2=5, ras_erk=None, pi3k=None),
+     kf_Her2_2_p_Grb2_binds_Sos, kr_Her2_2_p_Grb2_binds_Sos)
 # Her2-2-p-Grb2-Sos	↔	Her2-2-p+Grb2-Sos	3.623E-2±2.45E-2	5.343E-2±5.586E-2	-
 # TODO ...
 
