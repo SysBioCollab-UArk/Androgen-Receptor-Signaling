@@ -583,13 +583,72 @@ Rule('Her2_2_p_Shc_p_binds_Grb2',
 
 # Her2-2-p-Shc-p-Grb2+Sos	↔	Her2-2-p-Shc-p-Grb2-Sos	1.359E-1±1.23E-1	2.241E0±7.899E0	-
 # TODO ...
+Parameter('kf_Her2_2_p_Shc_p_Grb2_binds_Sos', 1.3559E-1)
+Parameter('kr_Her2_2_p_Shc_p_Grb2_binds_Sos', 2.241E0)
+Rule('Her2_2_p_Shc_p_Grb2_binds_Sos',
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Shc(r1=4, r2=None, grb2=None, state='p') %
+     Grb2(sos=None, shc=None, egfr_her2=None) +
+     Sos(grb2=7, ras_erk=8, pi3k=None) |
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Shc(r1=4, r2=None, grb2=5, state='p') %
+     Grb2(sos=None, shc=5, egfr_her2=None) %
+     Sos(grb2=7, ras_erk=8, pi3k=None),
+     kf_Her2_2_p_Shc_p_Grb2_binds_Sos,kr_Her2_2_p_Shc_p_Grb2_binds_Sos)
 
 # Her2-2-p-Shc-p-Grb2-Sos	↔	Her2-2-p+Shc-p-Grb2-Sos	9.861E-1±1.159E0	1.294E-2±3.787E-2	-
 # TODO ...
+Parameter('kf_Her2_2_p_binds_Shc_p_Grb2_Sos', 9.861E-1)
+Parameter('kr_Her2_2_p_binds_Shc_p_Grb2_Sos', 1.294E-2)
+Rule('Her2_2_p_binds_Shc_p_Grb2_Sos',
+     Her2(d=3, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=None, cpacp=None, state='p') +
+     Shc(r1=None, r2=None, grb2=5, state='p') %
+     Grb2(sos=6, shc=5, egfr_her2=None) %
+     Sos(grb2=6, ras_erk=None, pi3k=None) |
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Shc(r1=4, r2=None, grb2=5, state='p') %
+     Grb2(sos=6, shc=5, egfr_her2=None) %
+     Sos(grb2=6, ras_erk=None, pi3k=None),
+     kf_Her2_2_p_binds_Shc_p_Grb2_Sos,kr_Her2_2_p_binds_Shc_p_Grb2_Sos)
 
 # Her2-2-p-Shc-p-Grb2-Sos+Ras-GDP	↔	Her2-2-p-Shc-p-Grb2-Sos-Ras-GDP	1.749E-2±1.219E-2	6.129E-1±1.44E0	-
 # Her2-2-p-Shc-p-Grb2-Sos-Ras-GDP	→	Her2-2-p-Shc-p-Grb2-Sos+Ras-GTP	-	-	1.882E1±4.063E1
 # TODO ...
+Parameter('kf_Her2_2_p_Shc_p_Grb2_Sos_binds_RasGDP', 1.749E-2)
+Parameter('kr_Her2_2_p_Shc_p_Grb2_Sos_binds_RasGDP', 6.129E-1)
+Parameter('kcat_Her2_2_p_Shc_p_Grb2_Sos_activates_Ras', 1.882E-1)
+Rule('Her2_2_p_Shc_p_Grb2_Sos_binds_RasGDP',
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Shc(r1=4, r2=None, grb2=5, state='p') %
+     Grb2(sos=6, shc=5, egfr_her2=None) %
+     Sos(grb2=6, ras_erk=None, pi3k=None) +
+     Ras(sos=None, gap=None, raf=None, state='GDP') |
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Shc(r1=4, r2=None, grb2=5, state='p') %
+     Grb2(sos=6, shc=5, egfr_her2=None) %
+     Sos(grb2=6, ras_erk=7, pi3k=None) %
+     Ras(sos=7, gap=None, raf=None, state='GDP'),
+     kf_Her2_2_p_Shc_p_Grb2_Sos_binds_RasGDP,kr_Her2_2_p_Shc_p_Grb2_Sos_binds_RasGDP)
+Rule('Her2_2_p_Shc_p_Grb2_Sos_activates_Ras',
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Shc(r1=4, r2=None, grb2=5, state='p') %
+     Grb2(sos=6, shc=5, egfr_her2=None) %
+     Sos(grb2=6, ras_erk=7, pi3k=None) %
+     Ras(sos=7, gap=None, raf=None, state='GDP') >>
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Shc(r1=4, r2=None, grb2=5, state='p') %
+     Grb2(sos=6, shc=5, egfr_her2=None) %
+     Sos(grb2=6, ras_erk=None, pi3k=None) +
+     Ras(sos=None, gap=None, raf=None, state='GTP'),
+     kcat_Her2_2_p_Shc_p_Grb2_Sos_activates_Ras)
 
 # Her2-2-p+cPAcP	↔	Her2-2-p-cPAcP
 # Her2-2-p-cPAcP	→	Her2-2+cPAcP
@@ -612,6 +671,25 @@ Rule('Her2_2_p_cPAcP_dephos',
 # Her2-2+sPAcP	↔	Her2-2-sPAcP	8.951E0±9.414E0	1.248E-3±7.101E-4	-
 # Her2-2-sPAcP	→	Her2-2-p+sPAcP	-	-	2.288E1±2.252E1
 # TODO ...
+Parameter('kf_Her2_2_binds_sPAcP', 8.951E0)
+Parameter('kr_Her2_2_binds_sPAcP', 1.248E1)
+Parameter('kcat_Her2_2_sPAcP_phos_Her2_2_p', 2.288E1)
+Rule('Her2_2_binds_sPAcP',
+     Her2(d=3, grb2_shc=None, cpacp=None, state='u') %
+     Her2(d=3, grb2_shc=None, cpacp=None, state='u') +
+     sPAcP(r1=None, r2=None, loc='extra') |
+     Her2(d=3, grb2_shc=None, cpacp=8, state='u') %
+     Her2(d=3, grb2_shc=None, cpacp=8, state='u') %
+     sPAcP(r1=8, r2=None, loc='extra'),
+     kf_Her2_2_p_sPAcP, kr_Her2_2_p_sPAcP)
+Rule('Her2_2_sPAcP_phos_Her2_2_p',
+     Her2(d=3, grb2_shc=None, cpacp=8, state='u') %
+     Her2(d=3, grb2_shc=None, cpacp=8, state='u') %
+     sPAcP(r1=8, r2=None, loc='extra')  >>
+     Her2(d=3, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=None, cpacp=None, state='p') +
+     sPAcP(r1=None, r2=None, loc='extra'),
+     kcat_Her2_2_sPAcP_phos_Her2_2_p)
 
 # Ras-GTP+GAP	↔	Ras-GTP-GAP	1.032E-1±1.526E-1	1.149E0±1.23E0	-
 # Ras-GTP-GAP	→	Ras-GDP+GAP	-	-	4.785E-1±3.57E-1
