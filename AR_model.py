@@ -694,26 +694,120 @@ Rule('Her2_2_sPAcP_phos_Her2_2_p',
 # Ras-GTP+GAP	↔	Ras-GTP-GAP	1.032E-1±1.526E-1	1.149E0±1.23E0	-
 # Ras-GTP-GAP	→	Ras-GDP+GAP	-	-	4.785E-1±3.57E-1
 # TODO ...
-
+Parameter('kf_Ras_GTP_binds_GAP', 1.032E-1)
+Parameter('kr_Ras_GTP_binds_GAP', 1.149E0)
+Parameter('kcat_Ras_GTP_hydrolysis_by_GAP', 4.785E-1)
+Rule('Ras_GTP_binds_GAP',
+     Ras(sos=None, gap=None, raf=None, state='GTP')+
+     GAP(ras=None) |
+     Ras(sos=None, gap=1, raf=None, state='GTP') %
+     GAP(ras=1),
+     kf_Ras_GTP_binds_GAP, kr_Ras_GTP_binds_GAP)
+Rule('Ras_GTP_hydrolysis_by_GAP',
+     Ras(sos=None, gap=1, raf=None, state='GTP') %
+     GAP(ras=1) >>
+     Ras(sos=None, gap=None, raf=None, state='GDP') +
+     GAP(ras=None),
+     kcat_Ras_GTP_hydrolysis_by_GAP)
 # Ras-GTP+Raf	↔	Ras-GTP-Raf	5.455E-3±4.49E-3	2.097E-2±1.256E-2	-
 # Ras-GTP-Raf	→	Ras-GTP+Raf-p	-	-	5.858E0±6.133E0
 # TODO ...
+Parameter('kf_Ras_GTP_binds_Raf', 5.455E-3)
+Parameter('kr_Ras_GTP_binds_Raf', 2.097E-2)
+Parameter('kcat_Ras_GTP_activates_Raf', 5.858E0)
+Rule('Ras_GTP_binds_Raf',
+     Ras(sos=None, gap=None, raf=None, state='GTP') +
+     Raf(ras=None,mek=None,pase1=None,state='u') |
+     Ras(sos=None, gap=None, raf=1, state='GTP') %
+     Raf(ras=1, mek=None, pase1=None, state='u'),
+     kf_Ras_GTP_binds_Raf, kr_Ras_GTP_binds_Raf)
+Rule('Ras_GTP_activates_Raf',
+     Ras(sos=None, gap=None, raf=1, state='GTP') %
+     Raf(ras=1,mek=None,pase1=None,state='u') >>
+     Ras(sos=None, gap=None, raf=None, state='GTP') +
+     Raf(ras=None, mek=None, pase1=None, state='p'),
+     Ras_GTP_activates_Raf)
 
 # Raf-p+Pase1	↔	Raf-p-Pase1	5.166E-1±5.821E-1	1.77E0±1.446E0	-
 # Raf-p-Pase1	→	Raf+Pase1	-	-	3.978E0±2.632E0
 # TODO ...
+Parameter('kf_Raf_p_binds_Pase1', 5.166E-1)
+Parameter('kr_Raf_p_binds_Pase1', 1.77E0)
+Parameter('Kcat_Raf_p_dephos', 3.978E0)
+Rule('Raf_p_binds_Pase1',
+     Raf(ras=None,mek=None,pase1=None,state='p')+
+     Pase1(Raf=None) |
+     Raf(ras=None,mek=None,pase1=1,state='p') %
+     Pase1(Raf=1),
+     kf_Raf_p_binds_Pase1, kr_Raf_p_binds_Pase1)
+Rule('Raf_p_dephos',
+     Raf(ras=None, mek=None, pase1=1, state='p') %
+     Pase1(Raf=1) >>
+     Raf(ras=None, mek=None, pase1=None, state='u') +
+     Pase1(Raf=None) ,
+     kf_Raf_p_dephos)
 
 # MEK+Raf-p	↔	MEK-Raf-p	6.055E-2±5.209E-2	9.006E-2±1.189E-1	-
 # MEK-Raf-p	→	MEK-p+Raf-p	-	-	1.409E1±2.857E1
 # TODO ...
-
+Parameter('kf_MEK_binds_Raf_p', 6.055E-2)
+Parameter('kr_MEK_binds_Raf_p', 9.006E-2)
+Parameter('kcat_MEK_activates_Raf_p', 1.409E1)
+Rule('MEK_binds_Raf_p',
+     MEK(raf=None, erk=None, pase2=None, state='u') +
+     Raf(ras=None, mek=None, pase1=None, state='p') |
+     MEK(raf=1, erk=None, pase2=None, state='u') %
+     Raf(ras=None, mek=1, pase1=None, state='p'),
+     kf_MEK_binds_Raf_p, kr_MEK_binds_Raf_p)
+Rule('MEK_activation',
+     MEK(raf=1, erk=None, pase2=None, state='u') %
+     Raf(ras=None, mek=1, pase1=None, state='p') >>
+     MEK(raf=None, erk=None, pase2=None, state='p') +
+     Raf(ras=None, mek=None, pase1=None, state='p'),
+     kcat_MEK_p_activation)
 # MEK-p+Raf-p	↔	MEK-p-Raf-p	2.145E-1±6.272E-1	1.056E-1±1.282E-1	-
 # MEK-p-Raf-p	→	MEK-pp+Raf-p	-	-	2.949E0±2.16E0
 # TODO ...
-
+Parameter('kf_MEK_p_binds_Raf_p', 2.145E-1)
+Parameter('kr_MEK_p_binds_Raf_p', 1.056E-1)
+Parameter('kcat_MEK_pp_activation', 2.949E0)
+Rule('MEK_p_binds_Raf_p',
+     MEK(raf=None, erk=None, pase2=None, state='p') +
+     Raf(ras=None, mek=None, pase1=None, state='p') |
+     MEK(raf=1, erk=None, pase2=None, state='p') %
+     Raf(ras=None, mek=1, pase1=None, state='p'),
+     kf_MEK_binds_Raf_p, kr_MEK_binds_Raf_p)
+Rule('MEK_pp_activation',
+     MEK(raf=1, erk=None, pase2=None, state='p') %
+     Raf(ras=None, mek=1, pase1=None, state='p') >>
+     MEK(raf=None, erk=None, pase2=None, state='pp') +
+     Raf(ras=None, mek=None, pase1=None, state='p'),
+     kcat_MEK_pp_activation)
 # ERK+MEK-pp	↔	ERK-MEK-pp	1.677E-3±1.72E-3	4.956E-1±3.873E-1	-
 # ERK-MEK-pp	→	ERK-p+MEK-pp	-	-	1.095E1±1.112E1
 # TODO ...
+Parameter('kf_ERK_binds_MEK_pp', 1.677E-3)
+Parameter('kr_ERK_binds_MEK_pp', 4.956E-1)
+Parameter('kcat_ERK_activates_MEK_pp', 1.095E1)
+Rule('ERK_binds_MEK_pp',
+     ERK(state='u', mek=None) +
+     MEK(state='pp', erk=None) |
+     ERK(state='u', mek=1) %
+     MEK(state='pp', erk=1),
+     kf_ERK_binds_MEK_PP, kr_ERK_binds_MEK_pp)
+Rule('ERK_p_activation',
+     ERK(state='u', mek=1) %
+     MEK(state='pp', erk=1) >>
+     ERK(state='p', mek=None) +
+     MEK(state='pp', erk=None),
+     kf_ERK_activates_MEK_p)
+
+
+
+
+
+
+
 
 # ERK-p+MEK-pp	↔	ERK-p-MEK-pp	2.09E-3±1.47E-3	3.124E0±8.012E0	-
 # ERK-p-MEK-pp	→	ERK-pp+MEK-pp	-	-	8.435E0±6.538E0
