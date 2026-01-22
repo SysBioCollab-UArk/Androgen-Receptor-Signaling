@@ -801,17 +801,32 @@ Rule('ERK_p_activation',
      ERK(state='p', mek=None) +
      MEK(state='pp', erk=None),
      kf_ERK_activates_MEK_p)
-
-
-
-
-
-
-
-
 # ERK-p+MEK-pp	↔	ERK-p-MEK-pp	2.09E-3±1.47E-3	3.124E0±8.012E0	-
 # ERK-p-MEK-pp	→	ERK-pp+MEK-pp	-	-	8.435E0±6.538E0
 # TODO ...
+Parameter('kf_ERK_p_binds_MEK_pp', 2.09E-3)
+Parameter('kr_ERK_p_binds_MEK_pp', 3.124E0)
+Parameter('kcat_ERK_p_activates_MEK_pp', 8.435E0)
+Rule('ERK_binds_MEK_pp',
+     ERK(state='p', mek=None) +
+     MEK(state='pp', erk=None) |
+     ERK(state='p', mek=1) %
+     MEK(state='pp', erk=1),
+     kf_ERK_binds_MEK_PP, kr_ERK_binds_MEK_pp)
+Rule('ERK_p_activation',
+     ERK(state='p', mek=1) %
+     MEK(state='pp', erk=1) >>
+     ERK(state='u', mek=None) +
+     MEK(state='pp', erk=None),
+     kf_ERK_activates_MEK_p)
+
+
+
+
+
+
+
+
 
 # MEK-p+Pase2	↔	MEK-p-Pase2	1.04E-3±1.072E-3	7.569E0±1.607E1	-
 # MEK-p-Pase2	→	MEK+Pase2	-	-	7.221E-1±8.541E-1
