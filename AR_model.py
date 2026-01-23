@@ -810,10 +810,42 @@ Rule('ERK_p_to_ERK_pp_by_MEK_pp',
 # MEK-p+Pase2	↔	MEK-p-Pase2	1.04E-3±1.072E-3	7.569E0±1.607E1	-
 # MEK-p-Pase2	→	MEK+Pase2	-	-	7.221E-1±8.541E-1
 # TODO ...
+Parameter('kf_MEK_p_binds_Pase2', 1.04E-3)
+Parameter('kr_MEK_p_binds_Pase2', 7.569E0)
+Parameter('kcat_MEK_p_dephos_Pase2', 7.221E-1)
+Rule('MEK_p_binds_Pase2',
+     MEK(raf=None, erk=None, pase2=None, state='p') + Pase2(mek=None) |
+     MEK(raf=None, erk=None, pase2=1, state='p') % Pase2(mek=1),
+     kf_MEK_p_binds_Pase2, kr_MEK_p_binds_Pase2)
+Rule('MEK_p_dephos_Pase2',
+     MEK(raf=None, erk=None, pase2=1, state='p') % Pase2(mek=1) >>
+     MEK(raf=None, erk=None, pase2=None, state='u') + Pase2(mek=None),
+     kcat_MEK_p_dephos_Pase2)
 
 # MEK-pp+Pase2	↔	MEK-pp-Pase2	6.319E-2±4.223E-2	4.293E0±2.501E0	-
 # MEK-pp-Pase2	→	MEK-p+Pase2	-	-	2.617E-2±2.29E-2
 # TODO ...
+Parameter('kf_MEK_pp_binds_Pase2', 6.319E-2)
+Parameter('kr_MEK_pp_binds_Pase2', 4.293E0)
+Parameter('kcat_MEK_pp_dephos_Pase2', 2.617E-2)
+Rule('MEK_pp_binds_Pase2',
+     MEK(raf=None, erk=None, pase2=None, state='pp') + Pase2(mek=None) |
+     MEK(raf=None, erk=None, pase2=1, state='pp') % Pase2(mek=1),
+     kf_MEK_pp_binds_Pase2, kr_MEK_pp_binds_Pase2)
+Rule('MEK_p_dephos_by_Pase2',
+     MEK(raf=None, erk=None, pase2=1, state='pp') % Pase2(mek=1) >>
+     MEK(raf=None, erk=None, pase2=None, state='p') + Pase2(mek=None),
+     kcat_MEK_pp_dephos_Pase2)
+
+
+
+
+
+
+
+
+
+
 
 # ERK-p+Pase3	↔	ERK-p-Pase3	2.408E0±2.499E0	3.366E-1±2.34E-1	-
 # ERK-p-Pase3	→	ERK+Pase3	-	-	2.7E0±4.156E0
