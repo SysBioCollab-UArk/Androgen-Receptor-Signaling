@@ -784,12 +784,16 @@ Parameter('kf_ERK_binds_MEK_pp', 1.677E-3)
 Parameter('kr_ERK_binds_MEK_pp', 4.956E-1)
 Parameter('kcat_ERK_activates_MEK_pp', 1.095E1)
 Rule('ERK_binds_MEK_pp',
-     ERK(state='u', mek=None) + MEK(state='pp', erk=None) |
-     ERK(state='u', mek=1) % MEK(state='pp', erk=1),
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='u') +
+     MEK(state='pp', erk=None) |
+     ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None,state='u') %
+     MEK(state='pp', erk=1),
      kf_ERK_binds_MEK_pp, kr_ERK_binds_MEK_pp)
 Rule('ERK_to_ERK_p_by_MEK_pp',
-     ERK(state='u', mek=1) % MEK(state='pp', erk=1) >>
-     ERK(state='p', mek=None) + MEK(state='pp', erk=None),
+     ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None, state='u') %
+     MEK(state='pp', erk=1) >>
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='p') +
+     MEK(state='pp', erk=None),
      kcat_ERK_activates_MEK_pp)
 
 # ERK-p+MEK-pp	↔	ERK-p-MEK-pp	2.09E-3±1.47E-3	3.124E0±8.012E0	-
@@ -799,12 +803,16 @@ Parameter('kf_ERK_p_binds_MEK_pp', 2.09E-3)
 Parameter('kr_ERK_p_binds_MEK_pp', 3.124E0)
 Parameter('kcat_ERK_p_activates_MEK_pp', 8.435E0)
 Rule('ERK_p_binds_MEK_pp',
-     ERK(state='p', mek=None) + MEK(state='pp', erk=None) |
-     ERK(state='p', mek=1) % MEK(state='pp', erk=1),
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='p') +
+     MEK(state='pp', erk=None) |
+     ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None,state='p') %
+     MEK(state='pp', erk=1),
      kf_ERK_p_binds_MEK_pp, kr_ERK_p_binds_MEK_pp)
 Rule('ERK_p_to_ERK_pp_by_MEK_pp',
-     ERK(state='p', mek=1) % MEK(state='pp', erk=1) >>
-     ERK(state='u', mek=None) + MEK(state='pp', erk=None),
+     ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None,state='p') %
+     MEK(state='pp', erk=1) >>
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='u') +
+     MEK(state='pp', erk=None),
      kcat_ERK_p_activates_MEK_pp)
 
 # MEK-p+Pase2	↔	MEK-p-Pase2	1.04E-3±1.072E-3	7.569E0±1.607E1	-
@@ -837,27 +845,76 @@ Rule('MEK_p_dephos_by_Pase2',
      MEK(raf=None, erk=None, pase2=None, state='p') + Pase2(mek=None),
      kcat_MEK_pp_dephos_Pase2)
 
-
-
-
-
-
-
-
-
-
-
 # ERK-p+Pase3	↔	ERK-p-Pase3	2.408E0±2.499E0	3.366E-1±2.34E-1	-
 # ERK-p-Pase3	→	ERK+Pase3	-	-	2.7E0±4.156E0
 # TODO ...
+Parameter('kf_ERK_p_binds_Pase3', 2.408E0)
+Parameter('kr_ERK_p_binds_Pase3', 3.366E-1)
+Parameter('kcat_ERK_p_dephos_Pase3', 2.7E0)
+Rule('ERK_p_binds_Pase3',
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='p') +
+     Pase3(erk=None) |
+     ERK(ar=None, mek=None, pase3=1, sos=None, ets=None, ap1=None, state='p') %
+     Pase3(erk=1),
+     kf_ERK_p_binds_Pase3, kr_ERK_p_binds_Pase3)
+Rule('ERK_p_dephos_Pase3',
+     ERK(ar=None, mek=None, pase3=1, sos=None, ets=None, ap1=None, state='p') %
+     Pase3(erk=1) >>
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='u') +
+     Pase3(erk=None),
+     kcat_ERK_p_dephos_Pase3)
 
 # ERK-pp+Pase3	↔	ERK-pp-Pase3	5.008E-2±3.168E-2	5.499E0±8.337E0	-
 # ERK-pp-Pase3	→	ERK-p+Pase3	-	-	2.789E0±5.206E0
 # TODO ...
-
+Parameter('kf_ERK_pp_binds_Pase3', 5.008E-2)
+Parameter('kr_ERK_pp_binds_Pase3', 5.499E0)
+Parameter('kcat_ERK_pp_dephos_Pase3', 2.789E0)
+Rule('ERK_pp_binds_Pase3',
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') +
+     Pase3(erk=None) |
+     ERK(ar=None, mek=None, pase3=1, sos=None, ets=None, ap1=None, state='pp') %
+     Pase3(erk=1),
+     kf_ERK_pp_binds_Pase3, kr_ERK_pp_binds_Pase3)
+Rule('ERK_pp_dephos_Pase3',
+     ERK(ar=None, mek=None, pase3=1, sos=None, ets=None, ap1=None, state='pp') %
+     Pase3(erk=1) >>
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='p') +
+     Pase3(erk=None),
+     kcat_ERK_pp_dephos_Pase3)
 # EGFR-EGF-2-p-Grb2-Sos+ERK-pp	↔	EGFR-EGF-2-p-Grb2-Sos-ERK-pp	2.239E0±2.85E0	6.502E-4±5.11E-4	-
 # EGFR-EGF-2-p-Grb2-Sos-ERK-pp	→	EGFR-EGF-2-p-Grb2+Sos+ERK-pp	-	-	1.351E0±1.222E0
 # TODO ...
+Parameter('kf_EGFR_EGF_2_p_Grb2_Sos_binds_ERK_pp', 2.239E0)
+Parameter('kr_EGFR_EGF_2_p_Grb2_Sos_binds_ERK_pp', 6.502E-4)
+Parameter('kcat_EGFR_EGF_2_p_Grb2_Sos_release_ERK_pp', 1.351E0)
+Rule('EGFR_EGF_2_p_Grb2_Sos_binds_ERK_pp',
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     Grb2(r1=4, r2=5, sos=6, shc=None) %
+     Sos(grb2=6, ras_erk=None, pi3k=None) +
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') |
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     Grb2(r1=4, r2=5, sos=6, shc=None) %
+     Sos(grb2=6, ras_erk=7, pi3k=None) %
+     ERK(ar=None, mek=None, pase3=None, sos=7, ets=None, ap1=None, state='pp'),
+     kf_EGFR_EGF_2_p_Grb2_Sos_binds_ERK_pp, kr_EGFR_EGF_2_p_Grb2_Sos_binds_ERK_pp)
+Rule('EGFR_EGF_2_p_Grb2_Sos_release_ERK_pp',
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     Grb2(r1=4, r2=5, sos=6, shc=None) %
+     Sos(grb2=6, ras_erk=7, pi3k=None) %
+     ERK(ar=None, mek=None, pase3=None, sos=7, ets=None, ap1=None, state='pp') >>
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     Grb2(r1=4, r2=5, sos=None, shc=None) +
+     Sos(grb2=None, ras_erk=None, pi3k=None) +
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
+     kcat_EGFR_EGF_2_p_Grb2_Sos_release_ERK_pp)
+
+
+
 
 # Her2-2-p-Grb2-Sos+ERK-pp	↔	Her2-2-p-Grb2-Sos-ERK-pp	1.856E0±1.211E0	1.559E-1±2.128E-1	-
 # Her2-2-p-Grb2-Sos-ERK-pp	→	Her2-2-p-Grb2+Sos+ERK-pp	-	-	3.075E0±3.738E0
