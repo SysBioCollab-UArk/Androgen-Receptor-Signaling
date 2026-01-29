@@ -977,36 +977,55 @@ Rule('EGFR_EGF_2_p_Shc_p_Grb2_releases_Sos_ERK_pp',
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
      kcat_EGFR_EGF_2_p_Shc_p_Grb2_releases_Sos_ERK_pp)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Her2-2-p-Shc-p-Grb2-Sos+ERK-pp	↔	Her2-2-p-Shc-p-Grb2-Sos-ERK-pp	3.378E0±5.412E0	3.747E-1±8.356E-1	-
 # Her2-2-p-Shc-p-Grb2-Sos-ERK-pp	→	Her2-2-p-Shc-p-Grb2+Sos+ERK-pp	-	-	5.262E0±9.916E0
 # TODO ...
-
+Parameter('kf_Her2_2_p_Shc_p_Grb2_Sos_binds_ERK_pp', 3.378E0)
+Parameter('kr_Her2_2_p_Shc_p_Grb2_Sos_binds_ERK_pp', 3.747E-1)
+Parameter('kcat_Her2_2_p_Shc_p_Grb2_releases_Sos_ERK_pp', 5.262E0)
+Rule('Her2_2_p_Shc_p_Grb2_Sos_binds_ERK_pp',
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
+     Shc(r1=4, r2=5, grb2=6, state='p') %
+     Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=None, pi3k=None) +
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') |
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
+     Shc(r1=4, r2=5, grb2=6, state='p') %
+     Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=8, pi3k=None) %
+     ERK(ar=None, mek=None, pase3=None, sos=8, ets=None, ap1=None, state='pp'),
+     kf_Her2_2_p_Shc_p_Grb2_Sos_binds_ERK_pp, kr_Her2_2_p_Shc_p_Grb2_Sos_binds_ERK_pp)
+Rule('Her2_2_p_Shc_p_Grb2_releases_Sos_ERK_pp',
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
+     Shc(r1=4, r2=5, grb2=6, state='p') %
+     Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=8, pi3k=None) %
+     ERK(ar=None, mek=None, pase3=None, sos=8, ets=None, ap1=None, state='pp') >>
+     Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
+     Shc(r1=4, r2=5, grb2=6, state='p') %
+     Grb2(r1=None, r2=None, sos=None, shc=6) +
+     Sos(grb2=None, ras_erk=None, pi3k=None) +
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
+     kcat_Her2_2_p_Shc_p_Grb2_releases_Sos_ERK_pp)
 # EGF	→	EGFi	-	-	0E0±0E0
 # TODO ...
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # EGFR	↔	EGFRi	1.179E-2±1.056E-2	1.599E-1±2.308E-1	-
 # TODO ...
