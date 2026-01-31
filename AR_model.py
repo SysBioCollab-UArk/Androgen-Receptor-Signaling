@@ -1013,31 +1013,47 @@ Rule('Her2_2_p_Shc_p_Grb2_releases_Sos_ERK_pp',
      kcat_Her2_2_p_Shc_p_Grb2_releases_Sos_ERK_pp)
 # EGF	→	EGFi	-	-	0E0±0E0
 # TODO ...
-
-
-
-
-
-
-
-
-
-
-
-
-
+Parameter('k_EGF_internalize', 0)
+Rule('EGF_internalize',
+     EGF(r=None,loc='extra')>> EGF(r=None,loc='intra'),
+     k_EGF_internalize)
 
 # EGFR	↔	EGFRi	1.179E-2±1.056E-2	1.599E-1±2.308E-1	-
 # TODO ...
+Parameter('kf_EGFR_internalize', 1.179E-2)
+Parameter('kr_EGFR_internalize', 1.599E-1)
+Rule('EGFR_internalize',
+     EGFR(l=None, d=None, grb2_shc=None, state='u', loc='extra') |
+     EGFR(l=None, d=None, grb2_shc=None, state='u', loc='intra'),
+     kf_EGFR_internalize, kr_EGFR_internalize)
 
 # EGFR-EGF	→	EGFR-EGFi	-	-	1.579E-1±3.334E-1
 # TODO ...
+Parameter('k_EGFR_EGF_internalize', 1.579E-1)
+Rule('EGFR_EGF_internalize',
+     EGF(r=1,loc='extra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='extra') >>
+     EGF(r=1,loc='intra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='intra'),
+     k_EGFR_EGF_internalize)
 
 # EGFRi+EGFi	↔	EGFR-EGFi	1.041E0±1.185E0	1.251E-1±4.785E-1	-
 # TODO ...
+Parameter('kf_EGFRi_binds_EGFi', 1.041E0)
+Parameter('kr_EGFRi_binds_EGFi', 1.251E-1)
+Rule('EGFRi_binds_EGFi',
+     EGF(r=None,loc='intra') + EGFR(l=None, d=None, grb2_shc=None, state='u', loc='intra') |
+     EGF(r=1,loc='intra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='intra'),
+     kf_EGFRi_binds_EGFi, kr_EGFRi_binds_EGFi)
 
 # EGFR-EGF-2	→	EGFR-EGF-2i	-	-	6.648E-3±4.899E-3
 # TODO ...
+Parameter('k_EGFR_EGF_2_internalize', 6.648E-3)
+Rule('EGFR_EGF_2_internalize',
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=None, state='u', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=None, state='u', loc='extra') >>
+     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=None, state='u', loc='intra') %
+     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=None, state='u', loc='intra'),
+     k_EGFR_EGF_2_internalize)
+
 
 # 2*EGFR-EGFi	↔	EGFR-EGF-2i	1.432E-2±1.301E-2	4.332E0±7.81E0	-
 # TODO ...
