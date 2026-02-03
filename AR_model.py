@@ -1286,7 +1286,7 @@ Parameter('k_EGFR_EGF_2_p_Shc_p_Grb2_internalize', 1.38E-1)
 Rule('EGFR_EGF_2_p_Shc_p_Grb2_internalize',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
-     Shc(r1=4, r2=5, grb2=6, state='p') + Grb2(r1=None, r2=None, sos=None, shc=6) >>
+     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6) >>
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
      Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6),
