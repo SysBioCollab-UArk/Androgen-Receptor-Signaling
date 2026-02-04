@@ -1129,7 +1129,7 @@ Parameter('kr_EGFR_EGF_2_pi_binds_Grb2_Sos', 3.359E-1)
 Rule('EGFR_EGF_2_pi_binds_Grb2_Sos',
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=None, state='p', loc='intra') +
-     (Grb2(r1=None, r2=None, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None)) |
+     Grb2(r1=None, r2=None, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None) |
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
      Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None),
@@ -1137,6 +1137,7 @@ Rule('EGFR_EGF_2_pi_binds_Grb2_Sos',
 
 # EGFR-EGF-2-pi-Grb2+Sos	↔	EGFR-EGF-2-pi-Grb2-Sos	1.13E-2±1.034E-2	6.348E-1±6.501E-1	-
 # TODO ...
+
 Parameter('kf_EGFR_EGF_2_pi_Grb2_binds_Sos', 1.13E-2)
 Parameter('kr_EGFR_EGF_2_pi_Grb2_binds_Sos', 6.348E-1)
 Rule('EGFR_EGF_2_pi_Grb2_binds_Sos',
@@ -1163,8 +1164,7 @@ Rule('EGFR_EGF_2_pi_Grb2_Sos_binds_Ras_GDP',
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
      Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=7, pi3k=None) %
      Ras(sos=7, gap=None, raf=None, state='GDP'),
-     kf_EGFR_EGF_2_pi_Grb2_Sos_binds_Ras_GDP, kr_EGFR_EGF_2_pi_Grb2_Sos_binds_Ras_GDP)
-Rule('EGFR_EGF_2_pi_Grb2_Sos_Ras_GDP_to_GTP',
+     Rule('EGFR_EGF_2_pi_Grb2_Sos_Ras_GDP_to_GTP',
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
      Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=7, pi3k=None) %
@@ -1173,84 +1173,83 @@ Rule('EGFR_EGF_2_pi_Grb2_Sos_Ras_GDP_to_GTP',
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
      Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None) +
      Ras(sos=None, gap=None, raf=None, state='GTP'),
-     kcat_EGFR_EGF_2_pi_Grb2_Sos_Ras_GDP_to_GTP)
+    kcat_EGFR_EGF_2_pi_Grb2_Sos_Ras_GDP_to_GTP)
 
 # EGFR-EGF-2-pi-Grb2-Sos+ERK-pp	↔	EGFR-EGF-2-pi-Grb2-Sos-ERK-pp	1.427E0±1.503E0	3.947E-4±2.363E-4	-
 # EGFR-EGF-2-pi-Grb2-Sos-ERK-pp	→	EGFR-EGF-2-pi-Grb2+Sos+ERK-pp	-	-	1.617E0±1.465E0
 # TODO ...
-Parameter('kf_EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp', 1.427E0)
-Parameter('kr_EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp', 3.947E-4)
-Parameter('kcat_EGFR_EGF_2_pi_Grb2_Sos_releases_ERK_pp', 1.617E0)
-Rule('EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp',
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None) +
-     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp')|
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=7, pi3k=None) %
-     ERK(ar=None, mek=None, pase3=None, sos=7, ets=None, ap1=None, state='pp'),
-     kf_EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp, kr_EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp)
-Rule('EGFR_EGF_2_pi_Grb2_Sos_releases_ERK_pp',
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=7, pi3k=None) %
-     ERK(ar=None, mek=None, pase3=None, sos=7, ets=None, ap1=None, state='pp')>>
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Grb2(r1=4, r2=5, sos=None, shc=None) + Sos(grb2=None, ras_erk=None, pi3k=None) +
-     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
-     kcat_EGFR_EGF_2_pi_Grb2_Sos_releases_ERK_pp)
+#Parameter('kf_EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp', 1.427E0)
+#Parameter('kr_EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp', 3.947E-4)
+#Parameter('kcat_EGFR_EGF_2_pi_Grb2_Sos_releases_ERK_pp', 1.617E0)
+#Rule('EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp',
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None) +
+     #ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') |
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=7, pi3k=None) %
+     #ERK(ar=None, mek=None, pase3=None, sos=7, ets=None, ap1=None, state='pp'),
+     #kf_EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp, kr_EGFR_EGF_2_pi_Grb2_Sos_binds_ERK_pp)
+#Rule('EGFR_EGF_2_pi_Grb2_Sos_releases_ERK_pp',
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=7, pi3k=None) %
+     #ERK(ar=None, mek=None, pase3=None, sos=7, ets=None, ap1=None, state='pp') >>
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Grb2(r1=4, r2=5, sos=None, shc=None) + Sos(grb2=None, ras_erk=None, pi3k=None) +
+     #ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
+     #kcat_EGFR_EGF_2_pi_Grb2_Sos_releases_ERK_pp)
 
 # EGFR-EGF-2-pi+Shc	↔	EGFR-EGF-2-pi-Shc	1 .367E-1±1.947E-1	6.82E0±6.97E0	-
 # TODO ...
-Parameter('kf_EGFR_EGF_2_pi_binds_Shc', 1.367E-1)
-Parameter('kr_EGFR_EGF_2_pi_binds_Shc', 6.82E0)
-Rule('EGFR_EGF_2_pi_binds_Shc',
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=None, state='p', loc='intra') +
-     Shc(r1=None, r2=None, grb2=None, state='u')|
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=None, state='u'),
-     kf_EGFR_EGF_2_pi_binds_Shc, kr_EGFR_EGF_2_pi_binds_Shc)
+#Parameter('kf_EGFR_EGF_2_pi_binds_Shc', 1.367E-1)
+#Parameter('kr_EGFR_EGF_2_pi_binds_Shc', 6.82E0)
+#Rule('EGFR_EGF_2_pi_binds_Shc',
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=None, state='p', loc='intra') +
+     #Shc(r1=None, r2=None, grb2=None, state='u')|
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Shc(r1=4, r2=5, grb2=None, state='u'),
+     #kf_EGFR_EGF_2_pi_binds_Shc, kr_EGFR_EGF_2_pi_binds_Shc)
 
 # EGFR-EGF-2-p-Shc	→	EGFR-EGF-2-pi-Shc	-	-	1.652E-1±3.045E-1
 # TODO ...
-Parameter('k_EGFR_EGF_2_p_Shc_internalize', 1.652E-1)
-Rule('EGFR_EGF_2_p_Shc_internalize',
-     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
-     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') +
-     Shc(r1=4, r2=5, grb2=None, state='u') >>
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=None, state='u'),
-     k_EGFR_EGF_2_p_Shc_internalize)
+#Parameter('k_EGFR_EGF_2_p_Shc_internalize', 1.652E-1)
+#Rule('EGFR_EGF_2_p_Shc_internalize',
+     #EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     #EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') +
+     #Shc(r1=4, r2=5, grb2=None, state='u') >>
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Shc(r1=4, r2=5, grb2=None, state='u'),
+     #k_EGFR_EGF_2_p_Shc_internalize)
 
 # EGFR-EGF-2-pi-Shc	→	EGFR-EGF-2-pi-Shc-p	-	-	9.176E0±1.724E1
 # TODO ...
-Parameter('kcat_EGFR_EGF_2_pi_phos_Shc', 9.176E0)
-Rule('EGFR_EGF_2_pi_phos_Shc',
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') +
-     Shc(r1=4, r2=5, grb2=None, state='u') >>
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=None, state='p'),
-     kcat_EGFR_EGF_2_pi_phos_Shc)
+#Parameter('kcat_EGFR_EGF_2_pi_phos_Shc', 9.176E0)
+#Rule('EGFR_EGF_2_pi_phos_Shc',
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') +
+     #Shc(r1=4, r2=5, grb2=None, state='u') >>
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Shc(r1=4, r2=5, grb2=None, state='p'),
+     #kcat_EGFR_EGF_2_pi_phos_Shc)
 
 # EGFR-EGF-2-p-Shc-p	→	EGFR-EGF-2-pi-Shc-p	-	-	9.441E-2±6.697E-2
 # TODO ...
-Parameter('k_EGFR_EGF_2_p_Shc_p_internalize', 9.441E-2)
-Rule('EGFR_EGF_2_p_Shc_p_internalize',
-     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
-     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
-     Shc(r1=4, r2=5, grb2=None, state='p') >>
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=None, state='p'),
-     k_EGFR_EGF_2_p_Shc_p_internalize)
-
+#Parameter('k_EGFR_EGF_2_p_Shc_p_internalize', 9.441E-2)
+#Rule('EGFR_EGF_2_p_Shc_p_internalize',
+     #EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     #EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     #Shc(r1=4, r2=5, grb2=None, state='p') >>
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Shc(r1=4, r2=5, grb2=None, state='p'),
+     #k_EGFR_EGF_2_p_Shc_p_internalize)
 # EGFR-EGF-2-pi-Shc-p	↔	EGFR-EGF-2-pi+Shc-p	6.97E0±1.16E1	1.036E-3±7.374E-4	-
 # TODO ...
 
@@ -1269,43 +1268,43 @@ Rule('EGFR_EGF_2_p_Shc_p_internalize',
 
 # EGFR-EGF-2-pi-Shc-p+Grb2	↔	EGFR-EGF-2-pi-Shc-p-Grb2	4.201E-3±7.391E-3	2.866E0±6.449E0	-
 # TODO ...
-Parameter('kf_EGFR_EGF_2_pi_Shc_p_binds_Grb2', 4.201E-3)
-Parameter('kr_EGFR_EGF_2_pi_Shc_p_binds_Grb2', 2.866E0)
-Rule('EGFR_EGF_2_pi_Shc_p_binds_Grb2',
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=None, state='p') + Grb2(r1=None, r2=None, sos=None, shc=None) |
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6),
-     kf_EGFR_EGF_2_pi_Shc_p_binds_Grb2, kr_EGFR_EGF_2_pi_Shc_p_binds_Grb2)
+#Parameter('kf_EGFR_EGF_2_pi_Shc_p_binds_Grb2', 4.201E-3)
+#Parameter('kr_EGFR_EGF_2_pi_Shc_p_binds_Grb2', 2.866E0)
+#Rule('EGFR_EGF_2_pi_Shc_p_binds_Grb2',
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Shc(r1=4, r2=5, grb2=None, state='p') + Grb2(r1=None, r2=None, sos=None, shc=None) |
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6),
+     #kf_EGFR_EGF_2_pi_Shc_p_binds_Grb2, kr_EGFR_EGF_2_pi_Shc_p_binds_Grb2)
 
 # EGFR-EGF-2-p-Shc-p-Grb2	→	EGFR-EGF-2-pi-Shc-p-Grb2	-	-	1.38E-1±1.346E-1
 # TODO ...
-Parameter('k_EGFR_EGF_2_p_Shc_p_Grb2_internalize', 1.38E-1)
-Rule('EGFR_EGF_2_p_Shc_p_Grb2_internalize',
-     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
-     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
-     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6) >>
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6),
-     k_EGFR_EGF_2_p_Shc_p_Grb2_internalize)
+#Parameter('k_EGFR_EGF_2_p_Shc_p_Grb2_internalize', 1.38E-1)
+#Rule('EGFR_EGF_2_p_Shc_p_Grb2_internalize',
+     #EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     #EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     #Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6) >>
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6),
+     #k_EGFR_EGF_2_p_Shc_p_Grb2_internalize)
 
 # EGFR-EGF-2-pi-Shc-p-Grb2+Sos	↔	EGFR-EGF-2-pi-Shc-p-Grb2-Sos	9.048E-3±4.866E-3	5.588E-1±7.609E-1	-
 # TODO ...
-Parameter('kf_EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos', 9.048E-3)
-Parameter('kr_EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos', 5.588E-1)
-Rule('EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos',
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6) +
-     Sos(grb2=None, ras_erk=None, pi3k=None)|
-     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
-     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=7, shc=6)%
-     Sos(grb2=7, ras_erk=None, pi3k=None),
-     kf_EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos, kr_EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos)
+#Parameter('kf_EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos', 9.048E-3)
+#Parameter('kr_EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos', 5.588E-1)
+#Rule('EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos',
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6) +
+     #Sos(grb2=None, ras_erk=None, pi3k=None)|
+     #EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     #EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     #Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=7, shc=6)%
+     #Sos(grb2=7, ras_erk=None, pi3k=None),
+     #kf_EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos, kr_EGFR_EGF_2_pi_Shc_p_Grb2_binds_Sos)
 
 # EGFR-EGF-2-p-Shc-p-Grb2-Sos	→	EGFR-EGF-2-pi-Shc-p-Grb2-Sos	-	-	4.926E-1±1.139E0
 # TODO ...
