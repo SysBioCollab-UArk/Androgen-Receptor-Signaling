@@ -1360,13 +1360,32 @@ Rule('EGFR_EGF_2_pi_Shc_p_Grb2_Sos_Ras_GDP_to_GTP',
      Sos(grb2=7, ras_erk=None, pi3k=None) + Ras(sos=None, gap=None, raf=None, state='GTP'),
      kcat_EGFR_EGF_2_pi_Shc_p_Grb2_Sos_Ras_GDP_to_GTP)
 
-
-
-
-
 # EGFR-EGF-2-pi-Shc-p-Grb2-Sos+ERK-pp	↔	EGFR-EGF-2-pi-Shc-p-Grb2-Sos-ERK-pp	1.924E0±2.013E0	5.668E-4±4.798E-4	-
 # EGFR-EGF-2-pi-Shc-p-Grb2-Sos-ERK-pp	→	EGFR-EGF-2-pi-Shc-p-Grb2+Sos+ERK-pp	-	-	4.336E0±4.556E0
 # TODO ...
+Parameter('kf_EGFR_EGF_2_pi_Shc_p_Grb2_Sos_binds_ERKpp', 1.924)
+Parameter('kr_EGFR_EGF_2_pi_Shc_p_Grb2_Sos_binds_ERKpp', 5.668E-4)
+Parameter('kcat_EGFR_EGF_2_pi_Shc_p_Grb2_Sos_ERKpp_release_Sos_ERKpp', 4.336)
+Rule('EGFR_EGF_2_pi_Shc_p_Grb2_Sos_binds_ERKpp',
+     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=None, pi3k=None) + ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') |
+     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=8, pi3k=None) % ERK(ar=None, mek=None, pase3=None, sos=8, ets=None, ap1=None, state='pp'),
+     kf_EGFR_EGF_2_pi_Shc_p_Grb2_Sos_binds_ERKpp, kr_EGFR_EGF_2_pi_Shc_p_Grb2_Sos_binds_ERKpp)
+Rule('EGFR_EGF_2_pi_Shc_p_Grb2_Sos_ERKpp_release_Sos_ERKpp',
+     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=8, pi3k=None) % ERK(ar=None, mek=None, pase3=None, sos=8, ets=None, ap1=None, state='pp') >>
+     EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
+     EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
+     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=None, shc=6) +
+     Sos(grb2=None, ras_erk=None, pi3k=None) + ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
+     kcat_EGFR_EGF_2_pi_Shc_p_Grb2_Sos_ERKpp_release_Sos_ERKpp)
 
 # AR+ERK-pp	↔	AR-ERK-pp
 # AR-ERK-pp	↔	AR-p+ERK-pp
