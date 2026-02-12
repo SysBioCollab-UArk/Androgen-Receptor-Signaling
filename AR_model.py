@@ -1674,13 +1674,6 @@ Rule('PIP3_to_PIP2_by_PTEN',
      PtdIns3(pten=1, akt=None, pdk1=None) % PTEN(ptdins3=1) >> PtdIns2(pi3k=None) + PTEN(ptdins3=None),
      kcat_PIP3_binds_PTEN)
 
-# Monomer('PI3K',   ['egfr_her2','ptdins2','sos','state'],{'state':['i','act']})
-# Monomer('PtdIns2',['pi3k'])  # PIP2
-# Monomer('PtdIns3',['pten','akt','pdk1'])  # PIP3
-# Monomer('PTEN',   ['ptdins3'])
-# Monomer('Akt',    ['ptdins3','pdk1','tor','pase7','state'],{'state':['i','m','act']})
-# Monomer('Pdk1',   ['ptdins3','akt','state'],{'state':['i','m']})
-
 # PtdIns3+Akt	↔	PtdIns3-Akt	4.11E-1±7.091E-1	7.744E-3±1.008E-2	-
 # PtdIns3-Akt	→	PtdIns3+Akt-m	-	-	2.839E-1±3.552E-1
 # TODO ...
@@ -1699,14 +1692,47 @@ Rule('Akt_to_Akt_m_by_PIP3',
 # PtdIns3+Pdk1	↔	PtdIns3-Pdk1	2.436E-1±4.38E-1	4.369E-3±7.769E-3	-
 # PtdIns3-Pdk1	→	PtdIns3+Pdk1-m	-	-	7.83E0±2.249E1
 # TODO ...
+Parameter('kf_PIP3_binds_Pdk1', 2.436E-1)
+Parameter('kr_PIP3_binds_Pdk1', 4.369E-3)
+Parameter('kcat_PIP3_binds_Pdk1', 7.83)
+Rule('PIP3_binds_Pdk1',
+     PtdIns3(pten=None, akt=None, pdk1=None) + Pdk1(ptdins3=None, akt=None, state='i') |
+     PtdIns3(pten=None, akt=1, pdk1=None) % Pdk1(ptdins3=1, akt=None, state='i'),
+     kf_PIP3_binds_Pdk1, kr_PIP3_binds_Pdk1)
+Rule('Pdk1_to_Pdk1_m_by_PIP3',
+     PtdIns3(pten=None, akt=1, pdk1=None) % Pdk1(ptdins3=1, akt=None, state='i') >>
+     PtdIns3(pten=None, akt=None, pdk1=None) + Pdk1(ptdins3=None, akt=None, state='m'),
+     kcat_PIP3_binds_Pdk1)
 
 # Pdk1-m+Akt-m	↔	Pdk1-m-Akt-m	9.893E-2±6.529E-2	1.874E-2±4.907E-2	-
 # Pdk1-m-Akt-m	→	Pdk1+Act-Akt	-	-	2.096E-1±3.052E-1
 # TODO ...
+Parameter('kf_Pdk1_m_binds_Akt_m', 9.893E-2)
+Parameter('kr_Pdk1_m_binds_Akt_m', 1.874E-2)
+Parameter('kcat_Pdk1_m_binds_Akt_m', 2.096E-1)
+Rule('Pdk1_m_binds_Akt_m',
+     Pdk1(ptdins3=None, akt=None, state='m') + Akt(ptdins3=None, pdk1=None, tor=None, pase7=None, state='m') |
+     Pdk1(ptdins3=None, akt=1, state='m') % Akt(ptdins3=None, pdk1=1, tor=None, pase7=None, state='m'),
+     kf_Pdk1_m_binds_Akt_m, kr_Pdk1_m_binds_Akt_m)
+Rule('Pdk1_m_Akt_m_detach_membrane',
+     Pdk1(ptdins3=None, akt=1, state='m') % Akt(ptdins3=None, pdk1=1, tor=None, pase7=None, state='m') >>
+     Pdk1(ptdins3=None, akt=None, state='i') + Akt(ptdins3=None, pdk1=None, tor=None, pase7=None, state='act'),
+     kcat_Pdk1_m_binds_Akt_m)
 
 # Act-Akt+TOR	↔	Act-Akt-TOR	1.389E-1±1.405E-1	1.102E-1±7.477E-2	-
 # Act-Akt-TOR	→	Akt+Act-TOR	-	-	2.551E-1±1.76E-1
 # TODO ...
+Parameter('kf_Akt_act_binds_TOR', 1.389E-1)
+Parameter('kr_Akt_act_binds_TOR', 1.102E-1)
+Parameter('kcat_Akt_act_binds_TOR', 2.551E-1)
+Rule('Akt_act_binds_TOR',
+     Akt(ptdins3=None, pdk1=None, tor=None, pase7=None, state='act') + TOR(akt=None, e4ebp1=None, state='i') |
+     Akt(ptdins3=None, pdk1=None, tor=1, pase7=None, state='act') % TOR(akt=1, e4ebp1=None, state='i'),
+     kf_Akt_act_binds_TOR, kr_Akt_act_binds_TOR)
+Rule('TOR_activation_by_Akt_act',
+     Akt(ptdins3=None, pdk1=None, tor=1, pase7=None, state='act') % TOR(akt=1, e4ebp1=None, state='i') >>
+     Akt(ptdins3=None, pdk1=None, tor=None, pase7=None, state='i') + TOR(akt=None, e4ebp1=None, state='act'),
+     kcat_Akt_act_binds_TOR)
 
 # 4E-BP1+eIF4E	↔	4E-BP1-eIF4E
 Parameter('kf_4EBP1_binds_eIF4E', 0.1779)
@@ -1719,6 +1745,17 @@ Rule('_4EBP1_binds_eIF4E',
 # 4E-BP1+Act-TOR	↔	4E-BP1-Act-TOR	1.347E-1±1.643E-1	1.947E-1±2.04E-1	-
 # 4E-BP1-Act-TOR	→	4E-BP1-P+Act-TOR	-	-	2.5E-1±2.358E-1
 # TODO ...
+Parameter('kf_4EBP1_binds_TOR_act', 1.347E-1)
+Parameter('kr_4EBP1_binds_TOR_act', 1.947E-1)
+Parameter('kcat_4EBP1_binds_TOR_act', 2.5E-1)
+Rule('_4EBP1_binds_TOR_act',
+     _4EBP1(eif4e=None, tor=None, state='u') + TOR(akt=None, e4ebp1=None, state='act') |
+     _4EBP1(eif4e=None, tor=1, state='u') % TOR(akt=None, e4ebp1=1, state='act'),
+     kf_4EBP1_binds_TOR_act, kr_4EBP1_binds_TOR_act)
+Rule('_4EBP1_phos_TOR_act',
+     _4EBP1(eif4e=None, tor=1, state='u') % TOR(akt=None, e4ebp1=1, state='act') >>
+     _4EBP1(eif4e=None, tor=None, state='p') + TOR(akt=None, e4ebp1=None, state='act'),
+     kcat_4EBP1_binds_TOR_act)
 
 # T-e	↔	T
 Parameter('kf_T_extra_to_intra', 1.449)
@@ -1733,6 +1770,10 @@ Rule('spAcP_intra_to_extra',
 
 # EGFi	→	[]	-	-	1.057E0±1.053E0
 # TODO ...
+Parameter('kdeg_EGFR_intra', 1.057)
+Rule('EGFR_intra_degrades',
+     EGF(r=None, loc='intra') >> None,
+     kdeg_EGFR_intra)
 
 # 2*cPAcP	↔	cPAcP-2	8.195E-2±1.868E-1	9.026E-2±6.808E-2	-
 # TODO ...
@@ -1751,11 +1792,32 @@ Rule('spAcP_intra_to_extra',
 # Act-Akt+Pase7	↔	Act-Akt-Pase7	1.765E-3±1.65E-3	1.226E-3±2.158E-3	-
 # Act-Akt-Pase7	→	Akt+Pase7	-	-	1.861E-3±3.179E-3
 # TODO ...
+Parameter('kf_Akt_act_binds_Pase7', 1.765E-3)
+Parameter('kr_Akt_act_binds_Pase7', 1.226E-3)
+Parameter('kcat_Akt_act_binds_Pase7', 1.861E-3)
+Rule('Akt_act_binds_Pase7',
+     Akt(ptdins3=None, pdk1=None, tor=None, pase7=None, state='act') + Pase7(akt=None) |
+     Akt(ptdins3=None, pdk1=None, tor=None, pase7=1, state='act') % Pase7(akt=1),
+     kf_Akt_act_binds_Pase7, kr_Akt_act_binds_Pase7)
+Rule('Akt_deact_Pase7',
+     Akt(ptdins3=None, pdk1=None, tor=None, pase7=1, state='act') % Pase7(akt=1) >>
+     Akt(ptdins3=None, pdk1=None, tor=None, pase7=None, state='i') + Pase7(akt=None),
+     kcat_Akt_act_binds_Pase7)
 
 # 4E-BP1-eIF4E+Act-TOR	↔	4E-BP1-eIF4E-Act-TOR	1.603E-3±1.851E-3	7.501E-4±5.262E-4	-
 # 4E-BP1-eIF4E-Act-TOR	→	4E-BP1-P+eIF4E+Act-TOR	-	-	1.933E-3±4.962E-3
 # TODO ...
-
+Parameter('kf_4EBP1_eIF4E_binds_TOR_act', 1.603E-3)
+Parameter('kr_4EBP1_eIF4E_binds_TOR_act', 7.501E-4)
+Parameter('kcat_4EBP1_eIF4E_binds_TOR_act', 1.933E-3)
+Rule('_4EBP1_eIF4E_binds_TOR_act',
+     _4EBP1(eif4e=1, tor=None, state='u') % eIF4E(mrna_4ebp1=1) + TOR(akt=None, e4ebp1=None, state='act') |
+     _4EBP1(eif4e=1, tor=2, state='u') % eIF4E(mrna_4ebp1=1) % TOR(akt=None, e4ebp1=2, state='act'),
+     kf_4EBP1_eIF4E_binds_TOR_act, kr_4EBP1_eIF4E_binds_TOR_act)
+Rule('_4EBP1_eIF4E_phos_TOR_act',
+     _4EBP1(eif4e=1, tor=2, state='u') % eIF4E(mrna_4ebp1=1) % TOR(akt=None, e4ebp1=2, state='act') >>
+     _4EBP1(eif4e=None, tor=None, state='p') + eIF4E(mrna_4ebp1=None) + TOR(akt=None, e4ebp1=None, state='act'),
+     kcat_4EBP1_eIF4E_binds_TOR_act)
 
 # === TRANSCRIPTION/TRANSLATION RULES ===
 
