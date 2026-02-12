@@ -12,7 +12,6 @@ from itertools import product as cartesian_product
 Model()
 set_model(model)  # put the model into the global namespace
 
-
 # === MONOMERS ===
 
 # 1) Ligands & Receptors
@@ -38,8 +37,8 @@ Monomer('Pase2',  ['mek'])
 Monomer('Pase3',  ['erk'])
 
 # 4) ERK nuclear targets
-Monomer('ETS',    ['erk','gene','state'],{'state':['u','p']})
-Monomer('AP1',    ['erk','gene','state'],{'state':['u','p']})
+Monomer('ETS',    ['erk_pase5','gene','state'],{'state':['u','p']})
+Monomer('AP1',    ['erk_pase6','gene','state'],{'state':['u','p']})
 
 # 5) PI3K–AKT–mTOR arm
 Monomer('PI3K',   ['egfr_her2','ptdins2','sos','state'],{'state':['i','act']})
@@ -58,7 +57,7 @@ Monomer('T',      ['b','loc'], {'loc': ['intra', 'extra']})  # testosterone
 Monomer('Rase5a', ['t'])
 Monomer('HSP',    ['ar'])
 Monomer('DHT',    ['b'])  # dihydrotestosterone
-Monomer('Pase5',  ['ar','ets','ap1'])
+Monomer('Pase5',  ['ar_ets'])
 Monomer('Pase6',  ['ap1'])
 
 # 7) Transcription (promoters/genes) & RNA Pol II
@@ -286,7 +285,6 @@ Rule('EGFR_EGF_2_p_releases_Grb2_Sos',
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=None, state='p', loc='extra') %
      Grb2(r1=None, r2=None, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None),
      kf_EGFR_EGF_2_p_releases_Grb2_Sos, kr_EGFR_EGF_2_p_releases_Grb2_Sos)
-
 
 # Grb2+Sos	↔	Grb2-Sos	4.104E-3, 2.548E-4
 Parameter('kf_Grb2_binds_Sos', 4.104E-3)
@@ -882,6 +880,7 @@ Rule('ERK_pp_dephos_Pase3',
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='p') +
      Pase3(erk=None),
      kcat_ERK_pp_dephos_Pase3)
+
 # EGFR-EGF-2-p-Grb2-Sos+ERK-pp	↔	EGFR-EGF-2-p-Grb2-Sos-ERK-pp	2.239E0±2.85E0	6.502E-4±5.11E-4	-
 # EGFR-EGF-2-p-Grb2-Sos-ERK-pp	→	EGFR-EGF-2-p-Grb2+Sos+ERK-pp	-	-	1.351E0±1.222E0
 # TODO ...
@@ -912,6 +911,7 @@ Rule('EGFR_EGF_2_p_Grb2_Sos_release_ERK_pp',
      Sos(grb2=None, ras_erk=None, pi3k=None) +
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
      kcat_EGFR_EGF_2_p_Grb2_Sos_release_ERK_pp)
+
 # Her2-2-p-Grb2-Sos+ERK-pp	↔	Her2-2-p-Grb2-Sos-ERK-pp	1.856E0±1.211E0	1.559E-1±2.128E-1	-
 # Her2-2-p-Grb2-Sos-ERK-pp	→	Her2-2-p-Grb2+Sos+ERK-pp	-	-	3.075E0±3.738E0
 # TODO ...
@@ -942,6 +942,7 @@ Rule('Her2_2_p_Grb2_releases_Sos_ERK_pp',
      Sos(grb2=None, ras_erk=None, pi3k=None) +
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
      kcat_Her2_2_p_Grb2_releases_Sos_ERK_pp)
+
 # EGFR-EGF-2-p-Shc-p-Grb2-Sos+ERK-pp	↔	EGFR-EGF-2-p-Shc-p-Grb2-Sos-ERK-pp	1.185E0±1.099E0	8.315E-4±6.405E-4	-
 # EGFR-EGF-2-p-Shc-p-Grb2-Sos-ERK-pp	→	EGFR-EGF-2-p-Shc-p-Grb2+Sos+ERK-pp	-	-	1.231E1±4.931E1
 # TODO ...
@@ -1011,11 +1012,12 @@ Rule('Her2_2_p_Shc_p_Grb2_releases_Sos_ERK_pp',
      Sos(grb2=None, ras_erk=None, pi3k=None) +
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
      kcat_Her2_2_p_Shc_p_Grb2_releases_Sos_ERK_pp)
+
 # EGF	→	EGFi	-	-	0E0±0E0
 # TODO ...
 Parameter('k_EGF_internalize', 0)
 Rule('EGF_internalize',
-     EGF(r=None,loc='extra')>> EGF(r=None,loc='intra'),
+     EGF(r=None,loc='extra') >> EGF(r=None,loc='intra'),
      k_EGF_internalize)
 
 # EGFR	↔	EGFRi	1.179E-2±1.056E-2	1.599E-1±2.308E-1	-
@@ -1074,6 +1076,7 @@ Rule('EGFR_EGF_2_p_internalize',
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=None, state='p', loc='intra'),
      k_EGFR_EGF_2_p_internalize)
+
 # EGFR-EGF-2i	↔	EGFR-EGF-2-pi	2.347E0±3.074E0	1.54E-1±1.493E-1	-
 # TODO ...
 Parameter('kf_EGFR_EGF_2i_phos', 2.347E0)
@@ -1137,7 +1140,6 @@ Rule('EGFR_EGF_2_pi_binds_Grb2_Sos',
 
 # EGFR-EGF-2-pi-Grb2+Sos	↔	EGFR-EGF-2-pi-Grb2-Sos	1.13E-2±1.034E-2	6.348E-1±6.501E-1	-
 # TODO ...
-
 Parameter('kf_EGFR_EGF_2_pi_Grb2_binds_Sos', 1.13E-2)
 Parameter('kr_EGFR_EGF_2_pi_Grb2_binds_Sos', 6.348E-1)
 Rule('EGFR_EGF_2_pi_Grb2_binds_Sos',
@@ -1251,6 +1253,7 @@ Rule('EGFR_EGF_2_p_Shc_p_internalize',
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
      Shc(r1=4, r2=5, grb2=None, state='p'),
      k_EGFR_EGF_2_p_Shc_p_internalize)
+
 # EGFR-EGF-2-pi-Shc-p	↔	EGFR-EGF-2-pi+Shc-p	6.97E0±1.16E1	1.036E-3±7.374E-4	-
 # TODO ...
 Parameter('kf_EGFR_EGF_2_pi_Shc_p_dissoc', 6.97E0)
@@ -1468,43 +1471,163 @@ Rule('AR_p_dimerizes',
 # AR+DHT	↔	AR-DHT	2.486E0±2.641E0	5.42E-5±6.636E-5	-
 # AR-DHT	→	AR-p-DHT	5.436E-1±4.693E-1	-	-
 # TODO ...
+Parameter('kf_AR_binds_DHT', 2.486E0)
+Parameter('kr_AR_binds_DHT', 5.42E-5)
+Parameter('kcat_AR_phos_DHT', 5.436E-1)
+Rule('AR_binds_DHT',
+     AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='u') + DHT(b=None) |
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % DHT(b=1),
+     kf_AR_binds_DHT, kr_AR_binds_DHT)
+Rule('AR_phos_DHT',
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % DHT(b=1) >>
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % DHT(b=1),
+     kcat_AR_phos_DHT)
 
 # AR-p-DHT+AR-p-T	↔	AR-p-DHT-AR-p-T	6.895E-1±1.445E0	7.915E-4±5.504E-4	-
 # TODO ...
+Parameter('kf_AR_p_DHT_binds_AR_p_T', 6.895E-1)
+Parameter('kr_AR_p_DHT_binds_AR_p_T', 7.915E-4)
+Rule('AR_p_DHT_binds_AR_p_T',
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) +
+     AR(lig=2, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=2) |
+     AR(lig=1, ar=3, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) %
+     AR(lig=2, ar=3, erk=None, pase5=None, gene=None, state='p') % T(b=2),
+     kf_AR_p_DHT_binds_AR_p_T, kr_AR_p_DHT_binds_AR_p_T)
 
 # AR-p-DHT+AR-p	↔	AR-p-DHT-AR-p	6.064E-1±1.283E0	3.362E-3±6.635E-3	-
 # TODO ...
+Parameter('kf_AR_p_DHT_binds_AR_p', 6.064E-1)
+Parameter('kr_AR_p_DHT_binds_AR_p', 3.362E-3)
+Rule('AR_p_DHT_binds_AR_p',
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) +
+     AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='p') |
+     AR(lig=1, ar=3, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) %
+     AR(lig=None, ar=3, erk=None, pase5=None, gene=None, state='p'),
+     kf_AR_p_DHT_binds_AR_p, kr_AR_p_DHT_binds_AR_p)
 
 # 2*AR-p-DHT	↔	AR-p-DHT-2	1.026E0±1.066E0	1.013E-3±1.461E-3	-
 # TODO ...
+Parameter('kf_AR_p_DHT_binds_AR_p_DHT', 1.026)
+Parameter('kr_AR_p_DHT_binds_AR_p_DHT', 1.013E-3)
+Rule('AR_p_DHT_binds_AR_p_DHT',
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) +
+     AR(lig=2, ar=None, erk=None, pase5=None, gene=None, state='p') % DHT(b=2) |
+     AR(lig=1, ar=3, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) %
+     AR(lig=2, ar=3, erk=None, pase5=None, gene=None, state='p') % DHT(b=2),
+     kf_AR_p_DHT_binds_AR_p_DHT, kr_AR_p_DHT_binds_AR_p_DHT)
 
 # AR-p+Pase5	↔	AR-p-Pase5	5.409E-4±5.152E-4	4.6E-3±3.726E-3	-
 # AR-p-Pase5	→	AR+Pase5	-	-	3.637E-3±2.758E-3
 # TODO ...
+Parameter('kf_AR_p_binds_Pase5', 5.409E-4)
+Parameter('kr_AR_p_binds_Pase5', 3.637E-3)
+Parameter('kcat_AR_p_binds_Pase5', 3.637E-3)
+Rule('AR_p_binds_Pase5',
+     AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='p') + Pase5(ar_ets=None) |
+     AR(lig=None, ar=1, erk=None, pase5=None, gene=None, state='p') % Pase5(ar_ets=1),
+     kf_AR_p_binds_Pase5, kr_AR_p_binds_Pase5)
+Rule('AR_p_dephos_Pase5',
+     AR(lig=None, ar=1, erk=None, pase5=None, gene=None, state='p') % Pase5(ar_ets=1) >>
+     AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='u') + Pase5(ar_ets=None),
+     kcat_AR_p_binds_Pase5)
 
 # AR-p-T+Pase5	↔	AR-p-T-Pase5	1.671E-3±2.186E-3	7.194E-3±4.179E-3	-
 # AR-p-T-Pase5	→	AR-T+Pase5	-	-	5.853E-3±5.596E-3
 # TODO ...
+Parameter('kf_AR_p_T_binds_Pase5', 1.671E-3)
+Parameter('kr_AR_p_T_binds_Pase5', 7.194E-3)
+Parameter('kcat_AR_p_T_binds_Pase5', 5.853E-3)
+Rule('AR_p_T_binds_Pase5',
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1) + Pase5(ar_ets=None) |
+     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % T(b=1) % Pase5(ar_ets=2),
+     kf_AR_p_T_binds_Pase5, kr_AR_p_T_binds_Pase5)
+Rule('AR_p_T_dephos_Pase5',
+     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % T(b=1) % Pase5(ar_ets=2) >>
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % T(b=1) + Pase5(ar_ets=None),
+     kcat_AR_p_T_binds_Pase5)
 
 # AR-p-DHT+Pase5	↔	AR-p-DHT-Pase5	7.907E-4±1.029E-3	7.667E-3±7.267E-3	-
 # AR-p-DHT-Pase5	→	AR-DHT+Pase5	-	-	5.328E-2±1.285E-1
 # TODO ...
+Parameter('kf_AR_p_DHT_binds_Pase5', 7.907E-4)
+Parameter('kr_AR_p_DHT_binds_Pase5', 7.667E-3)
+Parameter('kcat_AR_p_DHT_binds_Pase5', 5.328E-2)
+Rule('AR_p_DHT_binds_Pase5',
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) + Pase5(ar_ets=None) |
+     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) % Pase5(ar_ets=2),
+     kf_AR_p_DHT_binds_Pase5, kr_AR_p_DHT_binds_Pase5)
+Rule('AR_p_DHT_dephos_Pase5',
+     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) % Pase5(ar_ets=2) >>
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % DHT(b=1) + Pase5(ar_ets=None),
+     kcat_AR_p_DHT_binds_Pase5)
 
 # ERK-pp+ETS	↔	ERK-pp-ETS	2.109E-3±3.444E-3	4.624E-1±3.654E-1	-
 # ERK-pp-ETS	→	ERK-pp+ETS-p	-	-	2.534E-2±1.687E-2
 # TODO ...
+Parameter('kf_ETS_binds_ERK_pp', 2.109E-3)
+Parameter('kr_ETS_binds_ERK_pp', 4.624E-1)
+Parameter('kcat_ETS_binds_ERK_pp', 2.534E-2)
+Rule('ETS_binds_ERK_pp',
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') +
+     ETS(erk_pase5=None, gene=None, state='u') |
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=1, ap1=None, state='pp') %
+     ETS(erk_pase5=1, gene=None, state='u'),
+     kf_ETS_binds_ERK_pp, kr_ETS_binds_ERK_pp)
+Rule('ETS_phos_ERK_pp',
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=1, ap1=None, state='pp') %
+     ETS(erk_pase5=1, gene=None, state='u') >>
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') +
+     ETS(erk_pase5=None, gene=None, state='p'),
+     kcat_ETS_binds_ERK_pp)
 
 # ETS-p+Pase5	↔	ETS-p-Pase5	3.753E0±3.797E0	2.548E-3±6.034E-3	-
 # ETS-p-Pase5	→	ETS+Pase5	-	-	8.124E0±9.856E0
 # TODO ...
+Parameter('kf_ETS_p_binds_Pase5', 3.753)
+Parameter('kr_ETS_p_binds_Pase5', 2.548E-3)
+Parameter('kcat_ETS_p_binds_Pase5', 8.124)
+Rule('ETS_p_binds_Pase5',
+     ETS(erk_pase5=None, gene=None, state='p') + Pase5(ar_ets=None) |
+     ETS(erk_pase5=1, gene=None, state='p') % Pase5(ar_ets=1),
+     kf_ETS_p_binds_Pase5, kr_ETS_p_binds_Pase5)
+Rule('ETS_p_dephos_Pase5',
+     ETS(erk_pase5=1, gene=None, state='p') % Pase5(ar_ets=1) >>
+     ETS(erk_pase5=None, gene=None, state='u') + Pase5(ar_ets=None),
+     kcat_ETS_p_binds_Pase5)
 
 # ERK-pp+AP1	↔	ERK-pp-AP1	1.403E-3±1.096E-3	5.971E-1±4.652E-1	-
 # ERK-pp-AP1	→	ERK-pp+AP1-p	-	-	2.556E-2±2.661E-2
 # TODO ...
+Parameter('kf_AP1_binds_ERK_pp', 1.403E-3)
+Parameter('kr_AP1_binds_ERK_pp', 5.971E-1)
+Parameter('kcat_AP1_binds_ERK_pp', 2.556E-2)
+Rule('AP1_binds_ERK_pp',
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') +
+     AP1(erk_pase6=None, gene=None, state='u') |
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=1, ap1=None, state='pp') %
+     AP1(erk_pase6=1, gene=None, state='u'),
+     kf_AP1_binds_ERK_pp, kr_AP1_binds_ERK_pp)
+Rule('AP1_phos_ERK_pp',
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=1, ap1=None, state='pp') %
+     AP1(erk_pase6=1, gene=None, state='u') >>
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') +
+     AP1(erk_pase6=None, gene=None, state='p'),
+     kcat_AP1_binds_ERK_pp)
 
 # AP1-p+Pase6	↔	AP1-p-Pase6	8.022E0±1.209E1	8.007E-4±7.727E-4	-
 # AP1-p-Pase6	→	AP1+Pase6	-	-	1.54E1±2.376E1
 # TODO ...
+Parameter('kf_AP1_p_binds_Pase6', 8.022)
+Parameter('kr_AP1_p_binds_Pase6', 8.007E-4)
+Parameter('kcat_AP1_p_binds_Pase6', 1.54E1)
+Rule('AP1_p_binds_Pase6',
+     AP1(erk_pase6=None, gene=None, state='p') + Pase6(ap1=None) |
+     AP1(erk_pase6=1, gene=None, state='p') % Pase6(ap1=1),
+     kf_AP1_p_binds_Pase6, kr_AP1_p_binds_Pase6)
+Rule('AP1_p_dephos_Pase6',
+     AP1(erk_pase6=1, gene=None, state='p') % Pase6(ap1=1) >>
+     AP1(erk_pase6=None, gene=None, state='u') + Pase6(ap1=None),
+     kcat_AP1_p_binds_Pase6)
 
 # Her2-2-p-Grb2-Sos+PI3K	↔	Her2-2-p-Grb2-Sos-PI3K	2.125E-1±2.91E-1	1.412E-2±3.191E-2	-
 # Her2-2-p-Grb2-Sos-PI3K	→	Her2-2-p-Grb2-Sos+Act-PI3K	-	-	1.941E-1±3.754E-1
@@ -1525,14 +1648,53 @@ Rule('AR_p_dimerizes',
 # PtdIns2+Act-PI3K	↔	PtdIns2-Act-PI3K	1.983E-1±1.959E-1	1.56E-2±9.585E-3	-
 # PtdIns2-Act-PI3K	→	PtdIns3+Act-PI3K	-	-	9.81E-2±5.877E-2
 # TODO ...
+Parameter('kf_PIP2_binds_PI3K_act', 1.983E-1)
+Parameter('kr_PIP2_binds_PI3K_act', 1.56E-2)
+Parameter('kcat_PIP2_binds_PI3K_act', 9.81E-2)
+Rule('PIP2_binds_PI3K_act',
+     PtdIns2(pi3k=None) + PI3K(egfr_her2=None, ptdins2=None, sos=None, state='act') |
+     PtdIns2(pi3k=1) % PI3K(egfr_her2=None, ptdins2=1, sos=None, state='act'),
+     kf_PIP2_binds_PI3K_act, kr_PIP2_binds_PI3K_act)
+Rule('PIP2_to_PIP3_by_PI3K_act',
+     PtdIns2(pi3k=1) % PI3K(egfr_her2=None, ptdins2=1, sos=None, state='act') >>
+     PtdIns3(pten=None, akt=None, pdk1=None) + PI3K(egfr_her2=None, ptdins2=None, sos=None, state='act'),
+     kcat_PIP2_binds_PI3K_act)
 
 # PtdIns3+PTEN	↔	PtdIns3-PTEN	3.036E-1±3.942E-1	2.262E-2±3.503E-2	-
 # PtdIns3-PTEN	→	PtdIns2+PTEN	-	-	3.081E-1±2.74E-1
 # TODO ...
+Parameter('kf_PIP3_binds_PTEN', 3.036E-1)
+Parameter('kr_PIP3_binds_PTEN', 2.262E-2)
+Parameter('kcat_PIP3_binds_PTEN', 3.081E-1)
+Rule('PIP3_binds_PTEN',
+     PtdIns3(pten=None, akt=None, pdk1=None) + PTEN(ptdins3=None) |
+     PtdIns3(pten=1, akt=None, pdk1=None) % PTEN(ptdins3=1),
+     kf_PIP3_binds_PTEN, kr_PIP3_binds_PTEN)
+Rule('PIP3_to_PIP2_by_PTEN',
+     PtdIns3(pten=1, akt=None, pdk1=None) % PTEN(ptdins3=1) >> PtdIns2(pi3k=None) + PTEN(ptdins3=None),
+     kcat_PIP3_binds_PTEN)
+
+# Monomer('PI3K',   ['egfr_her2','ptdins2','sos','state'],{'state':['i','act']})
+# Monomer('PtdIns2',['pi3k'])  # PIP2
+# Monomer('PtdIns3',['pten','akt','pdk1'])  # PIP3
+# Monomer('PTEN',   ['ptdins3'])
+# Monomer('Akt',    ['ptdins3','pdk1','tor','pase7','state'],{'state':['i','m','act']})
+# Monomer('Pdk1',   ['ptdins3','akt','state'],{'state':['i','m']})
 
 # PtdIns3+Akt	↔	PtdIns3-Akt	4.11E-1±7.091E-1	7.744E-3±1.008E-2	-
 # PtdIns3-Akt	→	PtdIns3+Akt-m	-	-	2.839E-1±3.552E-1
 # TODO ...
+Parameter('kf_PIP3_binds_Akt', 4.11E-1)
+Parameter('kr_PIP3_binds_Akt', 7.744E-3)
+Parameter('kcat_PIP3_binds_Akt', 2.839E-1)
+Rule('PIP3_binds_Akt',
+     PtdIns3(pten=None, akt=None, pdk1=None) + Akt(ptdins3=None, pdk1=None, tor=None, pase7=None, state='i') |
+     PtdIns3(pten=None, akt=1, pdk1=None) % Akt(ptdins3=1, pdk1=None, tor=None, pase7=None, state='i'),
+     kf_PIP3_binds_Akt, kr_PIP3_binds_Akt)
+Rule('Akt_to_Akt_m_by_PIP3',
+     PtdIns3(pten=None, akt=1, pdk1=None) % Akt(ptdins3=1, pdk1=None, tor=None, pase7=None, state='i') >>
+     PtdIns3(pten=None, akt=None, pdk1=None) + Akt(ptdins3=None, pdk1=None, tor=None, pase7=None, state='m'),
+     kcat_PIP3_binds_Akt)
 
 # PtdIns3+Pdk1	↔	PtdIns3-Pdk1	2.436E-1±4.38E-1	4.369E-3±7.769E-3	-
 # PtdIns3-Pdk1	→	PtdIns3+Pdk1-m	-	-	7.83E0±2.249E1
@@ -1698,7 +1860,7 @@ k_mRNA_deg = 0.8094
 # g-CycD+ETS-p	↔	g-CycD-ETS-p
 # g-CycD+AP1-p	↔	g-CycD-AP1-p
 tf_names_CycD = ['ETS_p', 'AP1_p']
-tf_species_CycD = [ETS(erk=None,gene=None,state='p'), AP1(erk=None,gene=None,state='p')]
+tf_species_CycD = [ETS(erk_pase5=None, gene=None, state='p'), AP1(erk_pase6=None, gene=None, state='p')]
 k_tf_on_off = [[0.138, 1.26], [0.3726, 2.171]]  # ETS-p, AP1-p
 # g-CycD-ETS-p+RNAp	↔	g-CycD-ETS-p-RNAp
 # g-CycD-ETS-p-RNAp	→	g-CycD-ETS-p+RNAp+mRNA-CycD
