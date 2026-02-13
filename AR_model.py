@@ -1633,6 +1633,8 @@ Rule('AP1_p_dephos_Pase6',
 # Her2-2-p-Grb2-Sos-PI3K	→	Her2-2-p-Grb2-Sos+Act-PI3K	-	-	1.941E-1±3.754E-1
 # TODO ...
 
+
+
 # Her2-2-p-Shc-p-Grb2-Sos+PI3K	↔	Her2-2-p-Shc-p-Grb2-Sos-PI3K	8.255E-2±8.716E-2	5.049E-3±7.031E-3	-
 # Her2-2-p-Shc-p-Grb2-Sos-PI3K	→	Her2-2-p-Shc-p-Grb2-Sos+Act-PI3K	-	-	1.93E-1±1.462E-1
 # TODO ...
@@ -1777,6 +1779,17 @@ Rule('EGFR_intra_degrades',
 
 # 2*cPAcP	↔	cPAcP-2	8.195E-2±1.868E-1	9.026E-2±6.808E-2	-
 # TODO ...
+Parameter('kf_cPAcP_dimer', 8.195E-2)
+Parameter('kr_cPAcp_dimer', 9.026E-2)
+Rule('cPAcP_dimerize',
+     cPAcP(r1=None, r2=None) + cPAcP(r1=None, r2=None) |
+     cPAcP(r1=1, r2=None) % cPAcP(r1=None, r2=1),
+     kf_cPAcP_dimer, kr_cPAcP_dimer)
+
+
+
+
+
 
 # 2*cPAcP-2	↔	cPAcP-4	8.039E-2±1.344E-1	6.186E-2±3.229E-2	-
 # TODO ...
