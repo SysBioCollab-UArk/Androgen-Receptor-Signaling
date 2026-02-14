@@ -1780,27 +1780,105 @@ Rule('EGFR_intra_degrades',
 # 2*cPAcP	↔	cPAcP-2	8.195E-2±1.868E-1	9.026E-2±6.808E-2	-
 # TODO ...
 Parameter('kf_cPAcP_dimer', 8.195E-2)
-Parameter('kr_cPAcp_dimer', 9.026E-2)
+Parameter('kr_cPAcP_dimer', 9.026E-2)
 Rule('cPAcP_dimerize',
      cPAcP(r1=None, r2=None) + cPAcP(r1=None, r2=None) |
      cPAcP(r1=1, r2=None) % cPAcP(r1=None, r2=1),
      kf_cPAcP_dimer, kr_cPAcP_dimer)
 
-
-
-
-
-
 # 2*cPAcP-2	↔	cPAcP-4	8.039E-2±1.344E-1	6.186E-2±3.229E-2	-
 # TODO ...
+Parameter('kf_cPAcP_tetramer', 8.039e-2)
+Parameter('kr_cPAcP_tetramer', 6.186e-2)
+Rule('cPAcP_dimer_dimerize_to_tetramer',
+     cPAcP(r1=1, r2=None) % cPAcP(r1=None, r2=1) +
+     cPAcP(r1=2, r2=None) % cPAcP(r1=None, r2=2) |
+     cPAcP(r1=1, r2=None) % cPAcP(r1=3, r2=1) %
+     cPAcP(r1=2, r2=3) % cPAcP(r1=None, r2=2),
+     kf_cPAcP_tetramer, kr_cPAcP_tetramer)
 
 # 2*Her2-2-p+cPAcP-2	↔	2Her2-2-p-cPAcP-2	1.292E2±3.518E2	2.069E-1±2.448E-1	-
 # 2Her2-2-p-cPAcP-2	→	2*Her2-2+cPAcP-2	-	-	9.256E0±6.196E0
 # TODO ...
+Parameter('kf_2Her2_2_p_binds_cPAcP_2', 1.292E2)
+Parameter('kr_2Her2_2_p_binds_cPAcP_2', 2.069E-1)
+Parameter('kcat_2Her2_2_p_dephos_by_cPAcP_2', 9.256E0)
+Rule('bind_2Her2_2_p_to_cPAcP_2',
+     Her2(d=1, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=1, grb2_shc=None, cpacp=None, state='p') +
+     Her2(d=2, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=2, grb2_shc=None, cpacp=None, state='p') +
+     cPAcP(r1=3, r2=None) % cPAcP(r1=None, r2=3) |
+     Her2(d=1, grb2_shc=None, cpacp=4, state='p') %
+     Her2(d=1, grb2_shc=None, cpacp=4, state='p') %
+     cPAcP(r1=3, r2=None) % cPAcP(r1=None, r2=3) %
+     Her2(d=2, grb2_shc=None, cpacp=5, state='p') %
+     Her2(d=2, grb2_shc=None, cpacp=5, state='p'),
+     kf_2Her2_2_p_binds_cPAcP_2, kr_2Her2_2_p_binds_cPAcP_2)
+
+Rule('dephos_2Her2_2_p_by_cPAcP_2',
+     Her2(d=1, grb2_shc=None, cpacp=4, state='p') %
+     Her2(d=1, grb2_shc=None, cpacp=4, state='p') %
+     cPAcP(r1=3, r2=None) % cPAcP(r1=None, r2=3) %
+     Her2(d=2, grb2_shc=None, cpacp=5, state='p') %
+     Her2(d=2, grb2_shc=None, cpacp=5, state='p') >>
+     Her2(d=1, grb2_shc=None, cpacp=None, state='u') %
+     Her2(d=1, grb2_shc=None, cpacp=None, state='u') +
+     Her2(d=2, grb2_shc=None, cpacp=None, state='u') %
+     Her2(d=2, grb2_shc=None, cpacp=None, state='u') +
+     cPAcP(r1=3, r2=None) % cPAcP(r1=None, r2=3),
+     kcat_2Her2_2_p_dephos_by_cPAcP_2)
 
 # 4*Her2-2-p+cPAcP-4	↔	4Her2-2-p-cPAcP-4	1.306E1±1.071E1	1.127E-2±1.019E-2	-
 # 4Her2-2-p-cPAcP-4	→	4*Her2-2+cPAcP-4	-	-	7.811E0±5.607E0
 # TODO ...
+Parameter('kf_4Her2_2_p_binds_cPAcP_4', 1.306E1)
+Parameter('kr_4Her2_2_p_binds_cPAcP_4', 1.127E-2)
+Parameter('kcat_4Her2_2_p_dephos_by_cPAcP_4', 7.811E0)
+Rule('bind_4Her2_2_p_to_cPAcP_4',
+     Her2(d=1, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=1, grb2_shc=None, cpacp=None, state='p') +
+     Her2(d=2, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=2, grb2_shc=None, cpacp=None, state='p') +
+     Her2(d=3, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=None, cpacp=None, state='p') +
+     Her2(d=4, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=4, grb2_shc=None, cpacp=None, state='p') +
+     cPAcP(r1=10, r2=None) % cPAcP(r1=None, r2=10) %
+     cPAcP(r1=11, r2=None) % cPAcP(r1=None, r2=11) |
+     Her2(d=1, grb2_shc=None, cpacp=20, state='p') %
+     Her2(d=1, grb2_shc=None, cpacp=20, state='p') %
+     Her2(d=2, grb2_shc=None, cpacp=21, state='p') %
+     Her2(d=2, grb2_shc=None, cpacp=21, state='p') %
+     Her2(d=3, grb2_shc=None, cpacp=22, state='p') %
+     Her2(d=3, grb2_shc=None, cpacp=22, state='p') %
+     Her2(d=4, grb2_shc=None, cpacp=23, state='p') %
+     Her2(d=4, grb2_shc=None, cpacp=23, state='p') %
+     cPAcP(r1=10, r2=None) % cPAcP(r1=None, r2=10) %
+     cPAcP(r1=11, r2=None) % cPAcP(r1=None, r2=11),
+     kf_4Her2_2_p_binds_cPAcP_4, kr_4Her2_2_p_binds_cPAcP_4)
+Rule('dephos_4Her2_2_p_by_cPAcP_4',
+     Her2(d=1, grb2_shc=None, cpacp=20, state='p') %
+     Her2(d=1, grb2_shc=None, cpacp=20, state='p') %
+     Her2(d=2, grb2_shc=None, cpacp=21, state='p') %
+     Her2(d=2, grb2_shc=None, cpacp=21, state='p') %
+     Her2(d=3, grb2_shc=None, cpacp=22, state='p') %
+     Her2(d=3, grb2_shc=None, cpacp=22, state='p') %
+     Her2(d=4, grb2_shc=None, cpacp=23, state='p') %
+     Her2(d=4, grb2_shc=None, cpacp=23, state='p') %
+     cPAcP(r1=10, r2=None) % cPAcP(r1=None, r2=10) %
+     cPAcP(r1=11, r2=None) % cPAcP(r1=None, r2=11) >>
+     Her2(d=1, grb2_shc=None, cpacp=None, state='u') %
+     Her2(d=1, grb2_shc=None, cpacp=None, state='u') +
+     Her2(d=2, grb2_shc=None, cpacp=None, state='u') %
+     Her2(d=2, grb2_shc=None, cpacp=None, state='u') +
+     Her2(d=3, grb2_shc=None, cpacp=None, state='u') %
+     Her2(d=3, grb2_shc=None, cpacp=None, state='u') +
+     Her2(d=4, grb2_shc=None, cpacp=None, state='u') %
+     Her2(d=4, grb2_shc=None, cpacp=None, state='u') +
+     cPAcP(r1=10, r2=None) % cPAcP(r1=None, r2=10) %
+     cPAcP(r1=11, r2=None) % cPAcP(r1=None, r2=11),
+     kcat_4Her2_2_p_dephos_by_cPAcP_4)
 
 # Act-Akt+Pase7	↔	Act-Akt-Pase7	1.765E-3±1.65E-3	1.226E-3±2.158E-3	-
 # Act-Akt-Pase7	→	Akt+Pase7	-	-	1.861E-3±3.179E-3
