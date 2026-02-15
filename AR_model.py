@@ -248,7 +248,7 @@ Rule('Her2_2_phosphorylation',
      kf_Her2_2_phos, kr_Her2_2_phos)
 
 # EGFR-EGF-2-p+Grb2	↔	EGFR-EGF-2-p-Grb2	1.068E0±3.282E0	7.018E-1±4.517E-1	-
-# TODO ... not sure about the value?
+# TODO ...
 Parameter('kf_EGFR_EGF_2_p_binds_Grb2', 1.068)
 Parameter('kr_EGFR_EGF_2_p_binds_Grb2', 0.7018)
 Rule('EGFR_EGF_2_p_binds_Grb2',
@@ -1718,11 +1718,33 @@ Rule('EGFR_EGF_2_p_Grb2_Sos_activates_PI3K',
 # EGFR-EGF-2-p-Shc-p-Grb2-Sos+PI3K	↔	EGFR-EGF-2-p-Shc-p-Grb2-Sos-PI3K	1.722E-1±1.503E-1	8.976E-3±1.111E-2	-
 # EGFR-EGF-2-p-Shc-p-Grb2-Sos-PI3K	→	EGFR-EGF-2-p-Shc-p-Grb2-Sos+Act-PI3K	-	-	1.01E-1±1.081E-1
 # TODO ...
-
-
-
-
-
+Parameter('kf_EGFR_EGF_2_p_Shc_p_Grb2_Sos_binds_PI3K', 1.722E-1)
+Parameter('kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_binds_PI3K', 8.976E-3)
+Parameter('kcat_EGFR_EGF_2_p_Shc_p_Grb2_Sos_activates_PI3K', 1.01E-1)
+Rule('EGFR_EGF_2_p_Shc_p_Grb2_Sos_binds_PI3K',
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=None, pi3k=None) +
+     PI3K(egfr_her2=None, ptdins2=None, sos=None, state='i') |
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=None, pi3k=8) %
+     PI3K(egfr_her2=None, ptdins2=None, sos=8, state='i'),
+     kf_EGFR_EGF_2_p_Shc_p_Grb2_Sos_binds_PI3K, kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_binds_PI3K)
+Rule('EGFR_EGF_2_p_Shc_p_Grb2_Sos_activates_PI3K',
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=None, pi3k=8) %
+     PI3K(egfr_her2=None, ptdins2=None, sos=8, state='i') >>
+     EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
+     Shc(r1=4, r2=5, grb2=6, state='p') % Grb2(r1=None, r2=None, sos=7, shc=6) %
+     Sos(grb2=7, ras_erk=None, pi3k=None) +
+     PI3K(egfr_her2=None, ptdins2=None, sos=None, state='act'),
+     kcat_EGFR_EGF_2_p_Shc_p_Grb2_Sos_activates_PI3K)
 
 # PtdIns2+Act-PI3K	↔	PtdIns2-Act-PI3K	1.983E-1±1.959E-1	1.56E-2±9.585E-3	-
 # PtdIns2-Act-PI3K	→	PtdIns3+Act-PI3K	-	-	9.81E-2±5.877E-2
