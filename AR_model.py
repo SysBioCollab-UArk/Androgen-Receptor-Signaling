@@ -203,6 +203,46 @@ for mon in model.monomers:
 
 # === RULES ===
 
+####
+'''
+Monomer('A', ['b', 'c'])
+Monomer('B', ['a'])
+Monomer('C', ['a'])
+
+Parameter('A_0', 100)
+Parameter('B_0', 100)
+Parameter('C_0', 100)
+
+Initial(A(b=None, c=None), A_0)
+Initial(B(a=None), B_0)
+Initial(C(a=None), C_0)
+
+Parameter('kf_AB', 100)
+Parameter('kr_AB', 100)
+Parameter('kf_AC', 100)
+Parameter('kr_AC', 100)
+
+Rule('A_binds_B', A(b=None) + B(a=None) | A(b=1) % B(a=1), kf_AB, kr_AB)
+Rule('A_binds_C', A(c=None) + C(a=None) | A(c=1) % C(a=1), kf_AC, kr_AC)
+
+# species: A, B, C, AB, AC, ABC
+# reactions:
+#   A + B <-> AB
+#   A + C <-> AC
+#   AB + C <-> ABC
+#   AC + B <-> ABC
+
+from pysb.simulator import ScipyOdeSimulator
+sim = ScipyOdeSimulator(model, verbose=True)
+print(len(model.rules))
+rules_uni = [rule for rule in model.rules if rule.rate_reverse is None]
+rules_bidir = [rule for rule in model.rules if rule.rate_reverse is not None]
+print(len(rules_uni) + 2 * len(rules_bidir))
+print(len(model.reactions))
+quit()
+'''
+####
+
 # EGF+EGFR	↔	EGFR-EGF
 Parameter('kf_EGF_binds_EGFR', 2.215)
 Parameter('kr_EGF_binds_EGFR', 1.343e-3)
@@ -783,9 +823,9 @@ Parameter('kr_ERK_binds_MEK_pp', 4.956E-1)
 Parameter('kcat_ERK_activates_MEK_pp', 1.095E1)
 Rule('ERK_binds_MEK_pp',
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='u') +
-     MEK(state='pp', erk=None) |
+     MEK(raf=None, erk=None, pase2=None, state='pp') |
      ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None,state='u') %
-     MEK(state='pp', erk=1),
+     MEK(raf=None, erk=1, pase2=None, state='pp'),
      kf_ERK_binds_MEK_pp, kr_ERK_binds_MEK_pp)
 Rule('ERK_to_ERK_p_by_MEK_pp',
      ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None, state='u') %
@@ -802,9 +842,9 @@ Parameter('kr_ERK_p_binds_MEK_pp', 3.124E0)
 Parameter('kcat_ERK_p_activates_MEK_pp', 8.435E0)
 Rule('ERK_p_binds_MEK_pp',
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='p') +
-     MEK(state='pp', erk=None) |
+     MEK(raf=None, erk=None, pase2=None, state='pp') |
      ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None,state='p') %
-     MEK(state='pp', erk=1),
+     MEK(raf=None, erk=1, pase2=None, state='pp'),
      kf_ERK_p_binds_MEK_pp, kr_ERK_p_binds_MEK_pp)
 Rule('ERK_p_to_ERK_pp_by_MEK_pp',
      ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None,state='p') %
@@ -1431,31 +1471,31 @@ Parameter('kf_AR_binds_T', 5.289e-3)
 Parameter('kr_AR_binds_T', 9.361e-4)
 Parameter('kcat_AR_binds_T', 5.458e-2)
 Rule('AR_binds_T',
-     AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='u') + T(b=None) |
-     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % T(b=1),
+     AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='u') + T(b=None, loc='intra') |
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % T(b=1, loc='intra'),
      kf_AR_binds_T, kr_AR_binds_T)
 Rule('AR_T_phosphorylates',
-     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % T(b=1) >>
-     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1), kcat_AR_binds_T)
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % T(b=1, loc='intra') >>
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra'), kcat_AR_binds_T)
 
 # AR-p+AR-p-T	↔	AR-p-AR-p-T
 Parameter('kon_AR_p_AR_p_T', 0.532)
 Parameter('koff_AR_p_AR_p_T', 6.128e-4)
 Rule('AR_p_binds_AR_p_T',
      AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='p') +
-     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1) |
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra') |
      AR(lig=None, ar=2, erk=None, pase5=None, gene=None, state='p') %
-     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % T(b=1),
+     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra'),
      kon_AR_p_AR_p_T, koff_AR_p_AR_p_T)
 
 # 2*AR-p-T	↔	AR-p-T-2
 Parameter('kon_AR_p_T_dimerize', 0.5835)
 Parameter('koff_AR_p_T_dimerize', 5.149e-4)
 Rule('AR_p_T_dimerizes',
-     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1) +
-     AR(lig=2, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=2) |
-     AR(lig=1, ar=3, erk=None, pase5=None, gene=None, state='p') % T(b=1) %
-     AR(lig=2, ar=3, erk=None, pase5=None, gene=None, state='p') % T(b=2),
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra') +
+     AR(lig=2, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=2, loc='intra') |
+     AR(lig=1, ar=3, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra') %
+     AR(lig=2, ar=3, erk=None, pase5=None, gene=None, state='p') % T(b=2, loc='intra'),
      kon_AR_p_T_dimerize, koff_AR_p_T_dimerize)
 
 # 2*AR-p	↔	AR-p-2
@@ -1489,9 +1529,9 @@ Parameter('kf_AR_p_DHT_binds_AR_p_T', 6.895E-1)
 Parameter('kr_AR_p_DHT_binds_AR_p_T', 7.915E-4)
 Rule('AR_p_DHT_binds_AR_p_T',
      AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) +
-     AR(lig=2, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=2) |
+     AR(lig=2, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=2, loc='intra') |
      AR(lig=1, ar=3, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) %
-     AR(lig=2, ar=3, erk=None, pase5=None, gene=None, state='p') % T(b=2),
+     AR(lig=2, ar=3, erk=None, pase5=None, gene=None, state='p') % T(b=2, loc='intra'),
      kf_AR_p_DHT_binds_AR_p_T, kr_AR_p_DHT_binds_AR_p_T)
 
 # AR-p-DHT+AR-p	↔	AR-p-DHT-AR-p	6.064E-1±1.283E0	3.362E-3±6.635E-3	-
@@ -1538,12 +1578,12 @@ Parameter('kf_AR_p_T_binds_Pase5', 1.671E-3)
 Parameter('kr_AR_p_T_binds_Pase5', 7.194E-3)
 Parameter('kcat_AR_p_T_binds_Pase5', 5.853E-3)
 Rule('AR_p_T_binds_Pase5',
-     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1) + Pase5(ar_ets=None) |
-     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % T(b=1) % Pase5(ar_ets=2),
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra') + Pase5(ar_ets=None) |
+     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra') % Pase5(ar_ets=2),
      kf_AR_p_T_binds_Pase5, kr_AR_p_T_binds_Pase5)
 Rule('AR_p_T_dephos_Pase5',
-     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % T(b=1) % Pase5(ar_ets=2) >>
-     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % T(b=1) + Pase5(ar_ets=None),
+     AR(lig=1, ar=2, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra') % Pase5(ar_ets=2) >>
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % T(b=1, loc='intra') + Pase5(ar_ets=None),
      kcat_AR_p_T_binds_Pase5)
 
 # AR-p-DHT+Pase5	↔	AR-p-DHT-Pase5	7.907E-4±1.029E-3	7.667E-3±7.267E-3	-
@@ -1871,10 +1911,10 @@ Rule('spAcP_intra_to_extra',
 
 # EGFi	→	[]	-	-	1.057E0±1.053E0
 # TODO ...
-Parameter('kdeg_EGFR_intra', 1.057)
-Rule('EGFR_intra_degrades',
+Parameter('kdeg_EGF_intra', 1.057)
+Rule('EGF_intra_degrades',
      EGF(r=None, loc='intra') >> None,
-     kdeg_EGFR_intra)
+     kdeg_EGF_intra)
 
 # 2*cPAcP	↔	cPAcP-2	8.195E-2±1.868E-1	9.026E-2±6.808E-2	-
 # TODO ...
@@ -2217,7 +2257,7 @@ if __name__ == '__main__':
     tspan = np.linspace(0, 10, 101)
     sim = ScipyOdeSimulator(model, tspan, verbose=True)
 
-    quit()  # TODO: temporary while debugging the code (don't need to run the simulation)
+    # quit()  # TODO: temporary while debugging the code (don't need to run the simulation)
 
     result = sim.run()
 
@@ -2225,6 +2265,19 @@ if __name__ == '__main__':
     rules_bidirectional = [rule for rule in model.rules if rule.rate_reverse is not None]
     print('# of rules:', len(rules_unidirectional) + 2 * len(rules_bidirectional))
     print('# of reactions:', len(model.reactions))
+
+
+    for rule in model.rules:
+        rxns = []
+        for i, rxn in enumerate(model.reactions):
+            # print('%d: %s' % (i, rxn))
+            if rule.name in rxn['rule']:
+                # print('%d: %s' % (i, rxn))
+                rxns.append(rxn)
+        if len(rxns) != 1 and len(rxns) != 2:
+            print('%s:' % rule.name)
+            print(np.array(rxns))
+    quit()
 
     rule_names = np.array([rule.name for rule in model.rules])
     rxn_rules = np.unique([rule_name for rxn in model.reactions for rule_name in rxn['rule']])
