@@ -24,7 +24,7 @@ Monomer('Ras',  ['sos','gap','raf','state'],{'state':['GDP','GTP']})
 Monomer('Shc',  ['r1','r2','grb2','state'],{'state':['u','p']})
 
 # 2) Phosphatases acting on HER2/AR modules
-Monomer('cPAcP',  ['r1', 'r2'])
+Monomer('cPAcP',  ['r1', 'r2', 'h1','h2'])
 Monomer('sPAcP',  ['r1', 'r2', 'loc'], {'loc': ['intra','extra']})
 
 # 3) RAS–RAF–MEK–ERK cascade
@@ -320,9 +320,9 @@ Parameter('kr_EGFR_EGF_2_p_releases_Grb2_Sos', 5.034)
 Rule('EGFR_EGF_2_p_releases_Grb2_Sos',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
-     Grb2(r1=4, r2=5, sos=None, shc=None) + Sos(grb2=None, ras_erk=None, pi3k=None) |
+     Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None) |
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='extra') %
-     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=None, state='p', loc='extra') %
+     EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=None, state='p', loc='extra') +
      Grb2(r1=None, r2=None, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None),
      kf_EGFR_EGF_2_p_releases_Grb2_Sos, kr_EGFR_EGF_2_p_releases_Grb2_Sos)
 
@@ -636,20 +636,20 @@ Rule('Her2_2_p_Shc_p_Grb2_binds_Sos',
 
 # Her2-2-p-Shc-p-Grb2-Sos	↔	Her2-2-p+Shc-p-Grb2-Sos	9.861E-1±1.159E0	1.294E-2±3.787E-2	-
 # TODO ...
-Parameter('kf_Her2_2_p_binds_Shc_p_Grb2_Sos', 9.861E-1)
-Parameter('kr_Her2_2_p_binds_Shc_p_Grb2_Sos', 1.294E-2)
-Rule('Her2_2_p_binds_Shc_p_Grb2_Sos',
+Parameter('kf_Her2_2_p_releases_Shc_p_Grb2_Sos', 9.861E-1)
+Parameter('kr_Her2_2_p_releases_Shc_p_Grb2_Sos', 1.294E-2)
+Rule('Her2_2_p_releases_Shc_p_Grb2_Sos',
      Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
      Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
      Shc(r1=4, r2=5, grb2=6, state='p') %
      Grb2(r1=None, r2=None, sos=7, shc=6) %
      Sos(grb2=7, ras_erk=None, pi3k=None) |
      Her2(d=3, grb2_shc=None, cpacp=None, state='p') %
-     Her2(d=3, grb2_shc=None, cpacp=None, state='p') %
+     Her2(d=3, grb2_shc=None, cpacp=None, state='p') +
      Shc(r1=None, r2=None, grb2=6, state='p') %
      Grb2(r1=None, r2=None, sos=7, shc=6) %
      Sos(grb2=7, ras_erk=None, pi3k=None),
-     kf_Her2_2_p_binds_Shc_p_Grb2_Sos, kr_Her2_2_p_binds_Shc_p_Grb2_Sos)
+     kf_Her2_2_p_releases_Shc_p_Grb2_Sos, kr_Her2_2_p_releases_Shc_p_Grb2_Sos)
 
 # Her2-2-p-Shc-p-Grb2-Sos+Ras-GDP	↔	Her2-2-p-Shc-p-Grb2-Sos-Ras-GDP	1.749E-2±1.219E-2	6.129E-1±1.44E0	-
 # Her2-2-p-Shc-p-Grb2-Sos-Ras-GDP	→	Her2-2-p-Shc-p-Grb2-Sos+Ras-GTP	-	-	1.882E1±4.063E1
@@ -1098,14 +1098,14 @@ Rule('EGFR_EGF_2_internalize',
 
 # 2*EGFR-EGFi	↔	EGFR-EGF-2i	1.432E-2±1.301E-2	4.332E0±7.81E0	-
 # TODO ...
-Parameter('kf_2_EGFR_EGFi_dimerizes_EGFR_EGF_2i', 1.432E-2)
-Parameter('kr_2_EGFR_EGFi_dimerizes_EGFR_EGF_2i', 4.332E0)
-Rule('EGFR_EGFR_EGFi_dimerizes_EGFR_EGF_2i',
-     EGF(r=1, loc='intra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='intra') %
+Parameter('kf_2_EGFR_EGFi_to_EGFR_EGF_2i', 1.432E-2)
+Parameter('kr_2_EGFR_EGFi_to_EGFR_EGF_2i', 4.332E0)
+Rule('dimerize_2_EGFR_EGFi',
+     EGF(r=1, loc='intra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='intra') +
      EGF(r=2, loc='intra') % EGFR(l=2, d=None, grb2_shc=None, state='u', loc='intra') |
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=None, state='u', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=None, state='u', loc='intra'),
-     kf_2_EGFR_EGFi_dimerizes_EGFR_EGF_2i,kr_2_EGFR_EGFi_dimerizes_EGFR_EGF_2i)
+     kf_2_EGFR_EGFi_to_EGFR_EGF_2i,kr_2_EGFR_EGFi_to_EGFR_EGF_2i)
 
 # EGFR-EGF-2-p	→	EGFR-EGF-2-pi	-	-	7.456E-2±8.563E-2
 # TODO ...
@@ -1947,25 +1947,29 @@ Rule('bind_2Her2_2_p_to_cPAcP_2',
      Her2(d=1, grb2_shc=None, cpacp=None, state='p') +
      Her2(d=2, grb2_shc=None, cpacp=None, state='p') %
      Her2(d=2, grb2_shc=None, cpacp=None, state='p') +
-     cPAcP(r1=3, r2=None) % cPAcP(r1=None, r2=3) |
+     cPAcP(r1=3, r2=None, h1=None, h2=None) %
+     cPAcP(r1=None, r2=3, h1=None, h2=None) |
      Her2(d=1, grb2_shc=None, cpacp=4, state='p') %
-     Her2(d=1, grb2_shc=None, cpacp=4, state='p') %
-     cPAcP(r1=3, r2=None) % cPAcP(r1=None, r2=3) %
+     Her2(d=1, grb2_shc=None, cpacp=5, state='p') %
+     cPAcP(r1=3, r2=None, h1=4, h2=None) %
+     cPAcP(r1=None, r2=3, h1=None, h2=5) %
      Her2(d=2, grb2_shc=None, cpacp=5, state='p') %
-     Her2(d=2, grb2_shc=None, cpacp=5, state='p'),
+     Her2(d=2, grb2_shc=None, cpacp=None, state='p'),
      kf_2Her2_2_p_binds_cPAcP_2, kr_2Her2_2_p_binds_cPAcP_2)
 
 Rule('dephos_2Her2_2_p_by_cPAcP_2',
      Her2(d=1, grb2_shc=None, cpacp=4, state='p') %
-     Her2(d=1, grb2_shc=None, cpacp=4, state='p') %
-     cPAcP(r1=3, r2=None) % cPAcP(r1=None, r2=3) %
+     Her2(d=1, grb2_shc=None, cpacp=None, state='p') %
+     cPAcP(r1=3, r2=None, h1=4, h2=5) %
+     cPAcP(r1=None, r2=3,h1=None, h2=None) %
      Her2(d=2, grb2_shc=None, cpacp=5, state='p') %
      Her2(d=2, grb2_shc=None, cpacp=5, state='p') >>
      Her2(d=1, grb2_shc=None, cpacp=None, state='u') %
      Her2(d=1, grb2_shc=None, cpacp=None, state='u') +
      Her2(d=2, grb2_shc=None, cpacp=None, state='u') %
      Her2(d=2, grb2_shc=None, cpacp=None, state='u') +
-     cPAcP(r1=3, r2=None) % cPAcP(r1=None, r2=3),
+     cPAcP(r1=3, r2=None, h1=None, h2=None) %
+     cPAcP(r1=None, r2=3, h1=None, h2=None),
      kcat_2Her2_2_p_dephos_by_cPAcP_2)
 
 # 4*Her2-2-p+cPAcP-4	↔	4Her2-2-p-cPAcP-4	1.306E1±1.071E1	1.127E-2±1.019E-2	-
