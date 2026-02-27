@@ -80,7 +80,6 @@ Monomer('mRNA_PSA',  ['eif4e','_40s','elong'], {'elong': ['i','a']})
 Monomer('CycD')
 Monomer('PSA')
 
-
 # === INITIAL CONCENTRATIONS ===
 
 # Initial(EGF(r=None, loc='extra'), EGF_0)
@@ -2231,10 +2230,13 @@ create_translation_rules(PSA, kf_kr, k_release, k_elongate, k_terminate, k_prot_
 
 # === OBSERVABLES ===
 
-Observable('Lig_free', EGF(r=None))
+"""Observable('Lig_free', EGF(r=None))
 Observable('Lig_bound', EGF(r=ANY))
 Observable('Rec_unphos', EGFR(state='u'))
-Observable('Rec_phos', EGFR(state='p'))
+Observable('Rec_phos', EGFR(state='p'))"""
+Observable('Her2_p', Her2(state='p'))
+Observable('cPAcP_obs', cPAcP(h1=None, h2=None))
+Observable('PSA_obs', PSA())
 
 if __name__ == '__main__':
     import numpy as np
@@ -2242,14 +2244,19 @@ if __name__ == '__main__':
     from pysb.simulator import ScipyOdeSimulator
 
     # simulation commands
-    tspan = np.linspace(0, 10, 101)
-    sim = ScipyOdeSimulator(model, tspan, verbose=True)
+    sim = ScipyOdeSimulator(model, verbose=True)
 
     # quit()  # TODO: temporary while debugging the code (don't need to run the simulation)
+    tspan = np.linspace(0, 3600, 61)
+    result_pre = sim.run(tspan=tspan)
 
-    result = sim.run()
+    tspan = np.linspace(3600,49*3600,60*49+1)
+    initials = result_pre.species[-1]
+    idx = [str(sp) for sp in model.species].index('DHT(b=None)')
+    initials[idx] = 10
+    result = sim.run(tspan=tspan, initials=initials)
 
-    rules_unidirectional = [rule for rule in model.rules if rule.rate_reverse is None]
+    '''rules_unidirectional = [rule for rule in model.rules if rule.rate_reverse is None]
     rules_bidirectional = [rule for rule in model.rules if rule.rate_reverse is not None]
     print('# of rules:', len(rules_unidirectional) + 2 * len(rules_bidirectional))
     print('# of reactions:', len(model.reactions))
@@ -2268,14 +2275,27 @@ if __name__ == '__main__':
     rule_names = np.array([rule.name for rule in model.rules])
     rxn_rules = np.unique([rule_name for rxn in model.reactions for rule_name in rxn['rule']])
     print(len(set(rule_names)-set(rxn_rules)))
-    print(np.array(list(set(rule_names) - set(rxn_rules))))
+    print(np.array(list(set(rule_names) - set(rxn_rules))))'''
 
 
     # plot results
-    plt.figure(constrained_layout=True)
+    '''plt.figure(constrained_layout=True)
     for obs in model.observables:
         plt.plot(tspan, result.observables[obs.name], lw=2, label=obs.name)
     plt.xlabel('time')
+    plt.ylabel('concentration')
+    plt.legend(loc='best')'''
+
+    plt.figure(constrained_layout=True)
+    plt.plot(tspan/3600, result.observables['Her2_p'], lw=2, label='Her2_p')
+    plt.plot(tspan/3600, result.observables['cPAcP_obs'], lw=2, label='cPAcP_obs')
+    plt.xlabel('time (hr)')
+    plt.ylabel('concentration')
+    plt.legend(loc='best')
+
+    plt.figure(constrained_layout=True)
+    plt.plot(tspan / 3600, result.observables['PSA_obs'], lw=2, label='PSA_obs')
+    plt.xlabel('time (hr)')
     plt.ylabel('concentration')
     plt.legend(loc='best')
 
