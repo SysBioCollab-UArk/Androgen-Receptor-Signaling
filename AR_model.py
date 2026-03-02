@@ -336,9 +336,9 @@ Rule('Grb2_binds_Sos',
 
 # 10. EGFR-EGF-2-p-Grb2-Sos+Ras-GDP	↔	EGFR-EGF-2-p-Grb2-Sos-Ras-GDP	2.183E-2±1.842E-2	8.377E-1±9.551E-1	-
 # 11. EGFR-EGF-2-p-Grb2-Sos-Ras-GDP	→	EGFR-EGF-2-p-Grb2-Sos+Ras-GTP	-	-	4.28E0±3.525E0
-Parameter('kf_EGFR_EGF_2_p_Grb2_Sos_binds_RasGDP', 2.183E-3)
+Parameter('kf_EGFR_EGF_2_p_Grb2_Sos_binds_RasGDP', 2.183E-2)
 Parameter('kr_EGFR_EGF_2_p_Grb2_Sos_binds_RasGDP', 8.377E-1)
-Parameter('kcat_EGFR_EGF_2_p_Grb2_Sos_binds_RasGDP', 4.28E-3)
+Parameter('kcat_EGFR_EGF_2_p_Grb2_Sos_binds_RasGDP', 4.28E0)
 Rule('EGFR_EGF_2_p_Grb2_Sos_activates_RasGDP',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
@@ -390,7 +390,7 @@ Rule('Her2_2_p_Grb2_binds_Sos',
 # 14. Her2-2-p-Grb2-Sos	↔	Her2-2-p+Grb2-Sos	3.623E-2±2.45E-2	5.343E-2±5.586E-2	-
 #   162 78,123 142 2*kr_Her2_2_p_Grb2_Sos_dissoc #_reverse_Her2_2_p_Grb2_Sos_dissoc TODO
 Parameter('kf_Her2_2_p_Grb2_Sos_dissoc', 3.623E-2)
-Parameter('kr_Her2_2_p_Grb2_Sos_dissoc',  5.343-2 / 2)  # TODO
+Parameter('kr_Her2_2_p_Grb2_Sos_dissoc',  5.343E-2 / 2)  # TODO
 Rule('Her2_2_p_Grb2_Sos_dissoc',
      Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
      Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
@@ -706,7 +706,7 @@ Rule('Her2_2_p_cPAcP_dephos',
 # 38	Her2-2-sPAcP	→	Her2-2-p+sPAcP	-	-	2.288E1±2.252E1
 #    69 17,77 125 2*kf_Her2_2_binds_sPAcP #Her2_2_binds_sPAc TODO
 Parameter('kf_Her2_2_binds_sPAcP', 8.951E0 / 2)  # TODO
-Parameter('kr_Her2_2_binds_sPAcP', 1.248E1)
+Parameter('kr_Her2_2_binds_sPAcP', 1.248E-3)
 Parameter('kcat_Her2_2_sPAcP_phos_Her2_2_p', 2.288E1)
 Rule('Her2_2_binds_sPAcP',
      Her2(d=3, grb2_shc=None, cpacp=None, state='u') %
@@ -843,7 +843,7 @@ Rule('ERK_p_binds_MEK_pp',
 Rule('ERK_p_to_ERK_pp_by_MEK_pp',
      ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None,state='p') %
      MEK(state='pp', erk=1) >>
-     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='u') +
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') +
      MEK(state='pp', erk=None),
      kcat_ERK_p_activates_MEK_pp)
 
