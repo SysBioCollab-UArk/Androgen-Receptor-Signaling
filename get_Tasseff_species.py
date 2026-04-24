@@ -1,5 +1,4 @@
 import re
-import numpy as np
 
 def extract_species(reactants, products):
     species = set()
