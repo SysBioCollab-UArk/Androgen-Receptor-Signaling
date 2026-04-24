@@ -202,45 +202,11 @@ for mon in model.monomers:
 
 # === RULES ===
 
-####
-'''
-Monomer('A', ['b', 'c'])
-Monomer('B', ['a'])
-Monomer('C', ['a'])
-
-Parameter('A_0', 100)
-Parameter('B_0', 100)
-Parameter('C_0', 100)
-
-Initial(A(b=None, c=None), A_0)
-Initial(B(a=None), B_0)
-Initial(C(a=None), C_0)
-
-Parameter('kf_AB', 100)
-Parameter('kr_AB', 100)
-Parameter('kf_AC', 100)
-Parameter('kr_AC', 100)
-
-Rule('A_binds_B', A(b=None) + B(a=None) | A(b=1) % B(a=1), kf_AB, kr_AB)
-Rule('A_binds_C', A(c=None) + C(a=None) | A(c=1) % C(a=1), kf_AC, kr_AC)
-
-# species: A, B, C, AB, AC, ABC
-# reactions:
-#   A + B <-> AB
-#   A + C <-> AC
-#   AB + C <-> ABC
-#   AC + B <-> ABC
-
-from pysb.simulator import ScipyOdeSimulator
-sim = ScipyOdeSimulator(model, verbose=True)
-print(len(model.rules))
-rules_uni = [rule for rule in model.rules if rule.rate_reverse is None]
-rules_bidir = [rule for rule in model.rules if rule.rate_reverse is not None]
-print(len(rules_uni) + 2 * len(rules_bidir))
-print(len(model.reactions))
-quit()
-'''
-####
+# TODO: Creating a dictionary to map PySB complex patterns to species names in Tasseff et al. (2010).
+#  Not currently working. The `ComplexPattern` object can't be used as the key because rules have copies of them, not
+#  the same object. Can't use strings either, because bond numbers could differ. Need to use a function that compares
+#  patterns somehow.
+# species_dict = {}
 
 # 1. EGF+EGFR	↔	EGFR-EGF
 Parameter('kf_EGF_binds_EGFR', 2.215)
@@ -249,6 +215,10 @@ Rule('EGF_binds_EGFR',
      EGF(r=None, loc='extra') + EGFR(l=None, d=None, grb2_shc=None, state='u', loc='extra') |
      EGF(r=1, loc='extra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='extra'),
      kf_EGF_binds_EGFR, kr_EGF_binds_EGFR)
+
+# species_dict[str(EGF(r=None, loc='extra'))] = 'EGF'
+# species_dict[str(EGFR(l=None, d=None, grb2_shc=None, state='u', loc='extra'))] = 'EGFR'
+# species_dict[str(EGF(r=1, loc='extra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='extra'))] = 'EGFR-EGF'
 
 # 2. 2*EGFR-EGF	↔	EGFR-EGF-2
 #    64 76,76 122 0.5*kf_EGFR_EGF_dimerize #EGFR_EGF_dimerization TODO
@@ -260,6 +230,24 @@ Rule('EGFR_EGF_dimerization',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=None, state='u', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=None, state='u', loc='extra'),
      kf_EGFR_EGF_dimerize, kr_EGFR_EGF_dimerize)
+
+# species_dict[str(EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=None, state='u', loc='extra') %
+#              EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=None, state='u', loc='extra'))] = 'EGFR-EGF-2'
+#
+# for key in species_dict.keys():
+#     print(key)
+#     print(type(key))
+#     print(species_dict[key])
+#
+# print()
+
+# for rule in model.rules:
+#     for cp in rule.reactant_pattern.complex_patterns:
+#         print(cp, type(cp))
+#     print([species_dict[str(cp)] for cp in rule.reactant_pattern.complex_patterns])
+#     print([species_dict[str(cp)] for cp in rule.product_pattern.complex_patterns])
+#
+# quit()
 
 # 3. EGFR-EGF-2	↔	EGFR-EGF-2-p
 Parameter('kf_EGFR_EGF_phos', 1.864)
@@ -2194,7 +2182,26 @@ if __name__ == '__main__':
     # simulation commands
     sim = ScipyOdeSimulator(model, verbose=True, cleanup=True)
 
-    # quit()  # TODO: temporary while debugging the code (don't need to run the simulation)
+    print('Number of reactions:', len(model.reactions))
+
+    # TODO: Currently, our model is generating 381 reactions and 221 species. The number of reactions is correct but the
+    #  number of species should be 211. Need to figure out which species are being created that shouldn't be.
+
+    species = model.species
+    print('Number of species:', len(species))
+    quit()
+    for i, rxn in enumerate(model.reactions):
+        print('%d: %s' % (i, str(rxn)))
+        reactants = '[]' if len(rxn['reactants']) == 0 else str(species[rxn['reactants'][0]])
+        for j in range(1, len(rxn['reactants'])):
+            reactants += ' + %s' % str(species[rxn['reactants'][j]])
+        products = '[]' if len(rxn['products']) == 0 else str(species[rxn['products'][0]])
+        for j in range(1, len(rxn['products'])):
+            products += ' + %s' % str(species[rxn['products'][j]])
+        print('%s %s %s' % (reactants, '->', products))
+        quit()
+
+    quit()  # TODO: temporary while debugging the code (don't need to run the simulation)
 
     # 1 hour pre-simulation
     tspan = np.linspace(0, 3600, 61)
