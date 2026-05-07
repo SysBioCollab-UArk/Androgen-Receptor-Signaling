@@ -190,8 +190,8 @@ Rule('EGF_binds_EGFR',
      kf_EGF_binds_EGFR, kr_EGF_binds_EGFR)
 
 # 2. 2*EGFR-EGF	↔	EGFR-EGF-2
-#    64 76,76 122 0.5*kf_EGFR_EGF_dimerize #EGFR_EGF_dimerization TODO
-Parameter('kf_EGFR_EGF_dimerize', 0.3701)  # TODO
+#    64 76,76 122 0.5*kf_EGFR_EGF_dimerize #EGFR_EGF_dimerization
+Parameter('kf_EGFR_EGF_dimerize', 0.3701)
 Parameter('kr_EGFR_EGF_dimerize', 0.1708)
 Rule('EGFR_EGF_dimerization',
      EGF(r=1, loc='extra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='extra') +
@@ -211,8 +211,8 @@ Rule('EGFR_autophosphorylation',
      kf_EGFR_EGF_phos, kr_EGFR_EGF_phos)
 
 # 4. 2*Her2	↔	Her2-2
-#     2 7,7 77 0.5*kf_Her2_dimer #Her2_dimerization TODO
-Parameter('kf_Her2_dimer', 4.98e-2)  # TODO
+#     2 7,7 77 0.5*kf_Her2_dimer #Her2_dimerization
+Parameter('kf_Her2_dimer', 4.98e-2)
 Parameter('kr_Her2_dimer', 0.1756)
 Rule('Her2_dimerization',
      Her2(d=None, grb2_shc=None, cpacp=None, state='u') + Her2(d=None, grb2_shc=None, cpacp=None, state='u') |
@@ -228,8 +228,8 @@ Rule('Her2_2_phosphorylation',
      kf_Her2_2_phos, kr_Her2_2_phos)
 
 # 6. EGFR-EGF-2-p+Grb2	↔	EGFR-EGF-2-p-Grb2	1.068E0±3.282E0	7.018E-1±4.517E-1	-
-#   202 9,140 162 2*kf_EGFR_EGF_2_p_binds_Grb2 #EGFR_EGF_2_p_binds_Grb2 TODO
-Parameter('kf_EGFR_EGF_2_p_binds_Grb2', 1.068)  # TODO
+#   202 9,140 162 2*kf_EGFR_EGF_2_p_binds_Grb2 #EGFR_EGF_2_p_binds_Grb2
+Parameter('kf_EGFR_EGF_2_p_binds_Grb2', 1.068)
 Parameter('kr_EGFR_EGF_2_p_binds_Grb2', 0.7018)
 Rule('EGFR_EGF_2_p_binds_Grb2',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='extra') %
@@ -253,9 +253,9 @@ Rule('EGFR_EGF_2_p_Grb2_binds_Sos',
      kf_EGFR_EGF_2_p_Grb2_binds_Sos, kr_EGFR_EGF_2_p_Grb2_binds_Sos)
 
 # 8. EGFR-EGF-2-p-Grb2-Sos	↔	EGFR-EGF-2-p+Grb2-Sos	1.159E0±2.35E0	5.034E-2±6.075E-2	-
-#   203 78,140 163 2*kr_EGFR_EGF_2_p_releases_Grb2_Sos #_reverse_EGFR_EGF_2_p_releases_Grb2_Sos TODO
+#   203 78,140 163 2*kr_EGFR_EGF_2_p_releases_Grb2_Sos #_reverse_EGFR_EGF_2_p_releases_Grb2_Sos
 Parameter('kf_EGFR_EGF_2_p_releases_Grb2_Sos', 1.159)
-Parameter('kr_EGFR_EGF_2_p_releases_Grb2_Sos', 5.034)  # TODO
+Parameter('kr_EGFR_EGF_2_p_releases_Grb2_Sos', 5.034)  #
 Rule('EGFR_EGF_2_p_releases_Grb2_Sos',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
@@ -300,8 +300,8 @@ Rule('EGFR_EGF_2_p_Grb2_Sos_activates_Ras',
      kcat_EGFR_EGF_2_p_Grb2_Sos_binds_RasGDP)
 
 # 12. Her2-2-p+Grb2	↔	Her2-2-p-Grb2	1.976E-2±2.734E-2	9.558E-1±8.677E-1	-
-#   161 9,123 141 2*kf_Her2_2_p_binds_Grb2 #Her2_2_p_binds_Grb2   TODO
-Parameter('kf_Her2_2_p_binds_Grb2', 1.976E-1)  # TODO
+#   161 9,123 141 2*kf_Her2_2_p_binds_Grb2 #Her2_2_p_binds_Grb2
+Parameter('kf_Her2_2_p_binds_Grb2', 1.976E-1)
 Parameter('kr_Her2_2_p_binds_Grb2', 9.558E-1)
 Rule('Her2_2_p_binds_Grb2',
      Her2(d=3, grb2_shc=None, cpacp=None, state='p') %
@@ -327,9 +327,9 @@ Rule('Her2_2_p_Grb2_binds_Sos',
      kf_Her2_2_p_Grb2_binds_Sos, kr_Her2_2_p_Grb2_binds_Sos)
 
 # 14. Her2-2-p-Grb2-Sos	↔	Her2-2-p+Grb2-Sos	3.623E-2±2.45E-2	5.343E-2±5.586E-2	-
-#   162 78,123 142 2*kr_Her2_2_p_Grb2_Sos_dissoc #_reverse_Her2_2_p_Grb2_Sos_dissoc TODO
+#   162 78,123 142 2*kr_Her2_2_p_Grb2_Sos_dissoc #_reverse_Her2_2_p_Grb2_Sos_dissoc
 Parameter('kf_Her2_2_p_Grb2_Sos_dissoc', 3.623E-2)
-Parameter('kr_Her2_2_p_Grb2_Sos_dissoc',  5.343E-2)  # TODO
+Parameter('kr_Her2_2_p_Grb2_Sos_dissoc',  5.343E-2)
 Rule('Her2_2_p_Grb2_Sos_dissoc',
      Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
      Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
@@ -395,9 +395,9 @@ Rule('EGFR_EGF_2_p_Shc_phos_Shc_p',
      kcat_EGFR_EGF_2_p_binds_Shc)
 
 # 19. EGFR-EGF-2-p-Shc-p	↔	EGFR-EGF-2-p+Shc-p	1.464E0±1.058E0	6.464E-3±8.466E-3	-
-#   210 14,140 166 2*kr_EGFR_EGF_2_p_Shc_p_dissoc #_reverse_EGFR_EFG_2_p_Shc_p_dissoc TODO
+#   210 14,140 166 2*kr_EGFR_EGF_2_p_Shc_p_dissoc #_reverse_EGFR_EFG_2_p_Shc_p_dissoc
 Parameter('kf_EGFR_EGF_2_p_Shc_p_dissoc', 1.464)
-Parameter('kr_EGFR_EGF_2_p_Shc_p_dissoc', 6.464E-3)  # TODO
+Parameter('kr_EGFR_EGF_2_p_Shc_p_dissoc', 6.464E-3)
 Rule('EGFR_EFG_2_p_Shc_p_dissoc',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
@@ -445,9 +445,9 @@ Rule('EGFR_EFG_2_p_Shc_p_Grb2_binds_Sos',
      kf_EGFR_EFG_2_p_Shc_p_Grb2_binds_Sos, kr_EGFR_EFG_2_p_Shc_p_Grb2_binds_Sos)
 
 # 23	EGFR-EGF-2-p-Shc-p-Grb2-Sos	↔	EGFR-EGF-2-p+Shc-p-Grb2-Sos	9.887E-1±1.048E0	1.562E-3±1.142E-3	-
-#   211 124,140 167 2*kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc #_reverse_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc TODO
+#   211 124,140 167 2*kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc #_reverse_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc
 Parameter('kf_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc', 9.887E-1)
-Parameter('kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc', 1.562E-3)  # TODO
+Parameter('kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc', 1.562E-3)
 Rule('EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
@@ -572,9 +572,9 @@ Rule('Her2_2_p_Shc_p_Grb2_binds_Sos',
      kf_Her2_2_p_Shc_p_Grb2_binds_Sos, kr_Her2_2_p_Shc_p_Grb2_binds_Sos)
 
 # 32	Her2-2-p-Shc-p-Grb2-Sos	↔	Her2-2-p+Shc-p-Grb2-Sos	9.861E-1±1.159E0	1.294E-2±3.787E-2	-
-#   166 123,124 145 2*kr_Her2_2_p_releases_Shc_p_Grb2_Sos #_reverse_Her2_2_p_releases_Shc_p_Grb2_Sos TODO
+#   166 123,124 145 2*kr_Her2_2_p_releases_Shc_p_Grb2_Sos #_reverse_Her2_2_p_releases_Shc_p_Grb2_Sos
 Parameter('kf_Her2_2_p_releases_Shc_p_Grb2_Sos', 9.861E-1)
-Parameter('kr_Her2_2_p_releases_Shc_p_Grb2_Sos', 1.294E-2)  # TODO
+Parameter('kr_Her2_2_p_releases_Shc_p_Grb2_Sos', 1.294E-2)
 Rule('Her2_2_p_releases_Shc_p_Grb2_Sos',
      Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
      Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
@@ -624,8 +624,8 @@ Rule('Her2_2_p_Shc_p_Grb2_Sos_activates_Ras',
 
 # 35	Her2-2-p+cPAcP	↔	Her2-2-p-cPAcP	1.707E1±1.581E1	5.325E-2±3.92E-2	-
 # 36	Her2-2-p-cPAcP	→	Her2-2+cPAcP	-	-	2.012E1±2.021E1
-#   167 15,123 146 2*kf_Her2_2_p_cPAcP_dephos #Her2_2_p_binds_cPAcP TODO
-Parameter('kf_Her2_2_p_cPAcP_dephos', 17.07)  # TODO
+#   167 15,123 146 2*kf_Her2_2_p_cPAcP_dephos #Her2_2_p_binds_cPAcP
+Parameter('kf_Her2_2_p_cPAcP_dephos', 17.07)
 Parameter('kr_Her2_2_p_cPAcP_dephos', 5.325e-2)
 Parameter('kcat_Her2_2_p_cPAcP_dephos', 20.12)
 Rule('Her2_2_p_binds_cPAcP',
@@ -643,8 +643,8 @@ Rule('Her2_2_p_cPAcP_dephos',
 
 # 37	Her2-2+sPAcP	↔	Her2-2-sPAcP	8.951E0±9.414E0	1.248E-3±7.101E-4	-
 # 38	Her2-2-sPAcP	→	Her2-2-p+sPAcP	-	-	2.288E1±2.252E1
-#    69 17,77 125 2*kf_Her2_2_binds_sPAcP #Her2_2_binds_sPAc TODO
-Parameter('kf_Her2_2_binds_sPAcP', 8.951E0)  # TODO
+#    69 17,77 125 2*kf_Her2_2_binds_sPAcP #Her2_2_binds_sPAc
+Parameter('kf_Her2_2_binds_sPAcP', 8.951E0)
 Parameter('kr_Her2_2_binds_sPAcP', 1.248E-3)
 Parameter('kcat_Her2_2_sPAcP_phos_Her2_2_p', 2.288E1)
 Rule('Her2_2_binds_sPAcP',
@@ -1017,8 +1017,8 @@ Rule('EGFR_EGF_2_internalize',
      k_EGFR_EGF_2_internalize)
 
 # 74	2*EGFR-EGFi	↔	EGFR-EGF-2i	1.432E-2±1.301E-2	4.332E0±7.81E0	-
-#    94 90,90 126 0.5*kf_2_EGFR_EGFi_to_EGFR_EGF_2i #dimerize_2_EGFR_EGFi TODO
-Parameter('kf_2_EGFR_EGFi_to_EGFR_EGF_2i', 1.432E-2)  # TODO
+#    94 90,90 126 0.5*kf_2_EGFR_EGFi_to_EGFR_EGF_2i #dimerize_2_EGFR_EGFi
+Parameter('kf_2_EGFR_EGFi_to_EGFR_EGF_2i', 1.432E-2)
 Parameter('kr_2_EGFR_EGFi_to_EGFR_EGF_2i', 4.332E0)
 Rule('dimerize_2_EGFR_EGFi',
      EGF(r=1, loc='intra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='intra') +
@@ -1159,8 +1159,8 @@ Rule('EGFR_EGF_2_pi_Grb2_Sos_releases_ERK_pp',
      kcat_EGFR_EGF_2_pi_Grb2_Sos_releases_ERK_pp)
 
 # 86	EGFR-EGF-2-pi+Shc	↔	EGFR-EGF-2-pi-Shc	1 .367E-1±1.947E-1	6.82E0±6.97E0	-
-#   227 13,147 174 2*kf_EGFR_EGF_2_pi_binds_Shc #EGFR_EGF_2_pi_binds_Shc TODO
-Parameter('kf_EGFR_EGF_2_pi_binds_Shc', 1.367E-1)  # TODO
+#   227 13,147 174 2*kf_EGFR_EGF_2_pi_binds_Shc #EGFR_EGF_2_pi_binds_Shc
+Parameter('kf_EGFR_EGF_2_pi_binds_Shc', 1.367E-1)
 Parameter('kr_EGFR_EGF_2_pi_binds_Shc', 6.82E0)
 Rule('EGFR_EGF_2_pi_binds_Shc',
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='intra') %
@@ -1205,9 +1205,9 @@ Rule('EGFR_EGF_2_p_Shc_p_internalize',
      k_EGFR_EGF_2_p_Shc_p_internalize)
 
 # 90	EGFR-EGF-2-pi-Shc-p	↔	EGFR-EGF-2-pi+Shc-p	6.97E0±1.16E1	1.036E-3±7.374E-4	-
-#   228 14,147 174 2*kr_EGFR_EGF_2_pi_Shc_p_dissoc #_reverse_EGFR_EGF_2_p_Shc_p_dissoc TODO
+#   228 14,147 174 2*kr_EGFR_EGF_2_pi_Shc_p_dissoc #_reverse_EGFR_EGF_2_p_Shc_p_dissoc
 Parameter('kf_EGFR_EGF_2_pi_Shc_p_dissoc', 6.97E0)
-Parameter('kr_EGFR_EGF_2_pi_Shc_p_dissoc', 1.036E-3)  # TODO
+Parameter('kr_EGFR_EGF_2_pi_Shc_p_dissoc', 1.036E-3)
 Rule('EGFR_EGF_2_p_Shc_p_dissoc',
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
@@ -1268,9 +1268,9 @@ Rule('EGFR_EGF_2_p_Shc_p_Grb2_Sos_internalize',
      k_EGFR_EGF_2_p_Shc_p_Grb2_Sos_internalize)
 
 # 95	EGFR-EGF-2-pi-Shc-p-Grb2-Sos	↔	EGFR-EGF-2-pi+Shc-p-Grb2-Sos	3.537E0±3.537E0	3.606E-4±3.165E-4	-
-#   229 124,147 175 2*kr_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos #_reverse_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos TODO
+#   229 124,147 175 2*kr_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos #_reverse_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos
 Parameter('kf_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos', 3.537E0)
-Parameter('kr_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos', 3.606E-4)  # TODO
+Parameter('kr_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos', 3.606E-4)
 Rule('EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos',
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
@@ -1394,8 +1394,8 @@ Rule('AR_p_binds_AR_p_T',
      kon_AR_p_AR_p_T, koff_AR_p_AR_p_T)
 
 # 108	2*AR-p-T	↔	AR-p-T-2	5.835E-1±1.26E0	5.149E-4±2.812E-4	-
-#   174 127,127 149 0.5*kon_AR_p_T_dimerize #AR_p_T_dimerizes TODO
-Parameter('kon_AR_p_T_dimerize', 0.5835)  # TODO
+#   174 127,127 149 0.5*kon_AR_p_T_dimerize #AR_p_T_dimerizes
+Parameter('kon_AR_p_T_dimerize', 0.5835)
 Parameter('koff_AR_p_T_dimerize', 5.149e-4)
 Rule('AR_p_T_dimerizes',
      AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra') +
@@ -1405,8 +1405,8 @@ Rule('AR_p_T_dimerizes',
      kon_AR_p_T_dimerize, koff_AR_p_T_dimerize)
 
 # 109	2*AR-p	↔	AR-p-2	2.848E-1±4.904E-1	1.281E-1±2.018E-1	-
-#    24 50,50 95 0.5*kon_AR_p_dimerize #AR_p_dimerizes TODO
-Parameter('kon_AR_p_dimerize', 0.2848)  # TODO
+#    24 50,50 95 0.5*kon_AR_p_dimerize #AR_p_dimerizes
+Parameter('kon_AR_p_dimerize', 0.2848)
 Parameter('koff_AR_p_dimerize', 0.1281)
 Rule('AR_p_dimerizes',
      AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='p') +
@@ -1450,8 +1450,8 @@ Rule('AR_p_DHT_binds_AR_p',
      kf_AR_p_DHT_binds_AR_p, kr_AR_p_DHT_binds_AR_p)
 
 # 114	2*AR-p-DHT	↔	AR-p-DHT-2	1.026E0±1.066E0	1.013E-3±1.461E-3	-
-#   177 128,128 152 0.5*kf_AR_p_DHT_binds_AR_p_DHT #AR_p_DHT_binds_AR_p_DHT TODO
-Parameter('kf_AR_p_DHT_binds_AR_p_DHT', 1.026)  # TODO
+#   177 128,128 152 0.5*kf_AR_p_DHT_binds_AR_p_DHT #AR_p_DHT_binds_AR_p_DHT
+Parameter('kf_AR_p_DHT_binds_AR_p_DHT', 1.026)
 Parameter('kr_AR_p_DHT_binds_AR_p_DHT', 1.013E-3)
 Rule('AR_p_DHT_binds_AR_p_DHT',
      AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) +
@@ -1801,8 +1801,8 @@ Rule('EGF_intra_degrades',
      kdeg_EGF_intra)
 
 # 231	2*cPAcP	↔	cPAcP-2	8.195E-2±1.868E-1	9.026E-2±6.808E-2	-
-#    43 15,15 110 0.5*kf_cPAcP_dimer #cPAcP_dimerize  TODO
-Parameter('kf_cPAcP_dimer', 8.195E-2)  # TODO
+#    43 15,15 110 0.5*kf_cPAcP_dimer #cPAcP_dimerize
+Parameter('kf_cPAcP_dimer', 8.195E-2)
 Parameter('kr_cPAcP_dimer', 9.026E-2)
 Rule('cPAcP_dimerize',
      cPAcP(d=None, q=None, h1=None, h2=None) + cPAcP(d=None, q=None,  h1=None, h2=None) |
@@ -1821,8 +1821,8 @@ Rule('cPAcP_dimer_dimerize_to_tetramer',
 
 # 233	2*Her2-2-p+cPAcP-2	↔	2Her2-2-p-cPAcP-2	1.292E2±3.518E2	2.069E-1±2.448E-1	-
 # 234	2Her2-2-p-cPAcP-2	→	2*Her2-2+cPAcP-2	-	-	9.256E0±6.196E0
-#   181 110,123,123 155 4*kf_2Her2_2_p_binds_cPAcP_2 #bind_2Her2_2_p_to_cPAcP_2 TODO
-Parameter('kf_2Her2_2_p_binds_cPAcP_2', 1.292E2)  # TODO
+#   181 110,123,123 155 4*kf_2Her2_2_p_binds_cPAcP_2 #bind_2Her2_2_p_to_cPAcP_2
+Parameter('kf_2Her2_2_p_binds_cPAcP_2', 1.292E2)
 Parameter('kr_2Her2_2_p_binds_cPAcP_2', 2.069E-1)
 Parameter('kcat_2Her2_2_p_dephos_by_cPAcP_2', 9.256E0)
 Rule('bind_2Her2_2_p_to_cPAcP_2',
@@ -1844,8 +1844,8 @@ Rule('dephos_2Her2_2_p_by_cPAcP_2',
 
 # 235	4*Her2-2-p+cPAcP-4	↔	4Her2-2-p-cPAcP-4	1.306E1±1.071E1	1.127E-2±1.019E-2	-
 # 236	4Her2-2-p-cPAcP-4	→	4*Her2-2+cPAcP-4	-	-	7.811E0±5.607E0
-#   182 123,123,123,123,129 156 16*kf_4Her2_2_p_binds_cPAcP_4 #bind_4Her2_2_p_to_cPAcP_4 TODO
-Parameter('kf_4Her2_2_p_binds_cPAcP_4', 1.306E1)  # TODO
+#   182 123,123,123,123,129 156 16*kf_4Her2_2_p_binds_cPAcP_4 #bind_4Her2_2_p_to_cPAcP_4
+Parameter('kf_4Her2_2_p_binds_cPAcP_4', 1.306E1)
 Parameter('kr_4Her2_2_p_binds_cPAcP_4', 1.127E-2)
 Parameter('kcat_4Her2_2_p_dephos_by_cPAcP_4', 7.811E0)
 Rule('bind_4Her2_2_p_to_cPAcP_4',
