@@ -1,6 +1,6 @@
 from pysb import *
 from pysb import MonomerPattern, as_complex_pattern
-from util import set_model, create_transcription_rules, create_translation_rules
+from util import set_model, create_transcription_rules, create_translation_rules, divide_out_bng_multipliers
 from itertools import product as cartesian_product
 
 # Reimplementation of the androgen receptor signaling model from:
@@ -82,58 +82,38 @@ Monomer('PSA')
 
 # === INITIAL CONCENTRATIONS ===
 
-# Initial(EGF(r=None, loc='extra'), EGF_0)
-# Initial(EGFR(l=None, d=None, grb2_shc=None, state='u', loc='extra'), EGFR_0)
-
-# Monomer('sPAcP',  ['r1', 'r2', 'loc'], {'loc': ['intra','extra']})
-# Monomer('T',      ['b','loc'], {'loc': ['intra', 'extra']})  # testosterone
-# Monomer('mRNA_cPAcP',['eif4e','_40s','elong'], {'elong': ['i','a']})
-# Monomer('mRNA_sPAcP',['eif4e','_40s','elong'], {'elong': ['i','a']})
-# Monomer('mRNA_CycD', ['eif4e','_40s','elong'], {'elong': ['i','a']})
-# Monomer('mRNA_PSA',  ['eif4e','_40s','elong'], {'elong': ['i','a']})
-
 init_params = {
     # Monomer('EGF',  ['r','loc'], {'loc': ['extra','intra']})
-    'EGF_loc_extra_0': 100,  # 8 nM
+    'EGF_loc_extra_0': 0,  # 8 nM
     # Pase7 24.71 ± 23.66
     'Pase7_0': 24.71,
     # AR 192.40 ± 260.66
-    # Monomer('AR',     ['lig','ar','erk','pase5','gene','state'], {'state':['u','p']})
     'AR_state_u_0': 192.40,
     # HSP 486.15 ± 659.55
     'HSP_0': 486.15,
     # Rase5a 81.11 ± 66.98
     'Rase5a_0': 81.11,
     # Her2 131.57 ± 111.41
-    # Monomer('Her2', ['d','grb2_shc','cpacp','state'],{'state':['u','p']})
     'Her2_state_u_0': 131.57,
     # EGFR 115.41 ± 82.19
-    # Monomer('EGFR', ['l','d','grb2_shc','state','loc'],{'state':['u','p'], 'loc': ['extra','intra']})
     'EGFR_state_u_loc_extra_0': 115.41,
     # Shc 91.19 ± 71.89
-    # Monomer('Shc',  ['r1', 'r2','grb2','state'],{'state':['u','p']})
     'Shc_state_u_0': 91.19,
     # Grb2 80.32 ± 67.10
     'Grb2_0': 80.32,
     # Sos 35.79 ± 29.37
     'Sos_0': 35.79,
     # Ras-GDP 233.39 ± 456.75
-    # Monomer('Ras',  ['sos','gap','raf','state'],{'state':['GDP','GTP']})
     'Ras_state_GDP_0': 233.39,
     # Raf 76.83 ± 54.31
-    # Monomer('Raf',    ['ras','mek','pase1','state'],{'state':['u','p']})
     'Raf_state_u_0': 76.83,
     # MEK 1572.31 ± 2260.09
-    # Monomer('MEK',    ['raf','erk','pase2','state'],{'state':['u','p','pp']})
     'MEK_state_u_0': 1572.31,
     # ERK 587.24 ± 401.24
-    # Monomer('ERK',    ['ar', 'mek','pase3','sos','ets','ap1','state'],{'state':['u','p','pp']})
     'ERK_state_u_0': 587.24,
     # ETS 133.52 ± 150.03
-    # Monomer('ETS',    ['erk','gene','state'],{'state':['u','p']})
     'ETS_state_u_0': 133.52,
     # AP1 107.34 ± 172.51
-    # Monomer('AP1',    ['erk','gene','state'],{'state':['u','p']})
     'AP1_state_u_0': 107.34,
     # Pase1 181.67 ± 513.24
     'Pase1_0': 181.67,
@@ -148,7 +128,6 @@ init_params = {
     # GAP 60.71 ± 100.62
     'GAP_0': 60.71,
     # PI3K 174.54 ± 240.45
-    # Monomer('PI3K',   ['egfr_her2','ptdins2','sos','state'],{'state':['i','act']})
     'PI3K_state_i_0': 174.54,
     # PtdIns2 131.27 ± 122.14
     'PtdIns2_0': 131.27,
@@ -157,16 +136,12 @@ init_params = {
     # PTEN 123.84 ± 142.99
     'PTEN_0': 123.84,
     # Akt 332.36 ± 585.30
-    # Monomer('Akt',    ['ptdins3','pdk1','tor','pase7','state'],{'state':['i','m','act']})
     'Akt_state_i_0': 332.36,
     # Pdk1 190.88 ± 237.37
-    # Monomer('Pdk1',   ['ptdins3','akt','state'],{'state':['i','m']})
     'Pdk1_state_i_0': 190.88,
     # TOR 121.80 ± 120.53
-    # Monomer('TOR',    ['akt','e4ebp1','state'],{'state':['i','act']})
     'TOR_state_i_0': 121.80,
     # 4E-BP1 136.67 ± 107.57
-    # Monomer('_4EBP1', ['eif4e','tor','state'],{'state':['u','p']})
     '_4EBP1_state_u_0': 136.67,
     # eIF4E 3707.42 ± 3178.77
     'eIF4E_0': 3707.42,
@@ -199,14 +174,12 @@ for mon in model.monomers:
         pname = '%s%s_0' % (mon.name, suffix)
         model.add_initial(Initial(as_complex_pattern(mp), Parameter(pname, init_params.get(pname, 0))))
 
+# remove initials for species that can't exist
+remove_inits = ['EGFR_state_p_loc_extra_0', 'EGFR_state_p_loc_intra_0', 'Her2_state_p_0', 'mRNA_cPAcP_elong_a_0',
+                'mRNA_sPAcP_elong_a_0', 'mRNA_CycD_elong_a_0', 'mRNA_PSA_elong_a_0']
+model.initials = [init for init in model.initials if init.value.name not in remove_inits]
 
 # === RULES ===
-
-# TODO: Creating a dictionary to map PySB complex patterns to species names in Tasseff et al. (2010).
-#  Not currently working. The `ComplexPattern` object can't be used as the key because rules have copies of them, not
-#  the same object. Can't use strings either, because bond numbers could differ. Need to use a function that compares
-#  patterns somehow.
-# species_dict = {}
 
 # 1. EGF+EGFR	↔	EGFR-EGF
 Parameter('kf_EGF_binds_EGFR', 2.215)
@@ -216,13 +189,9 @@ Rule('EGF_binds_EGFR',
      EGF(r=1, loc='extra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='extra'),
      kf_EGF_binds_EGFR, kr_EGF_binds_EGFR)
 
-# species_dict[str(EGF(r=None, loc='extra'))] = 'EGF'
-# species_dict[str(EGFR(l=None, d=None, grb2_shc=None, state='u', loc='extra'))] = 'EGFR'
-# species_dict[str(EGF(r=1, loc='extra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='extra'))] = 'EGFR-EGF'
-
 # 2. 2*EGFR-EGF	↔	EGFR-EGF-2
 #    64 76,76 122 0.5*kf_EGFR_EGF_dimerize #EGFR_EGF_dimerization TODO
-Parameter('kf_EGFR_EGF_dimerize', 2 * 0.3701)  # TODO
+Parameter('kf_EGFR_EGF_dimerize', 0.3701)  # TODO
 Parameter('kr_EGFR_EGF_dimerize', 0.1708)
 Rule('EGFR_EGF_dimerization',
      EGF(r=1, loc='extra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='extra') +
@@ -230,24 +199,6 @@ Rule('EGFR_EGF_dimerization',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=None, state='u', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=None, state='u', loc='extra'),
      kf_EGFR_EGF_dimerize, kr_EGFR_EGF_dimerize)
-
-# species_dict[str(EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=None, state='u', loc='extra') %
-#              EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=None, state='u', loc='extra'))] = 'EGFR-EGF-2'
-#
-# for key in species_dict.keys():
-#     print(key)
-#     print(type(key))
-#     print(species_dict[key])
-#
-# print()
-
-# for rule in model.rules:
-#     for cp in rule.reactant_pattern.complex_patterns:
-#         print(cp, type(cp))
-#     print([species_dict[str(cp)] for cp in rule.reactant_pattern.complex_patterns])
-#     print([species_dict[str(cp)] for cp in rule.product_pattern.complex_patterns])
-#
-# quit()
 
 # 3. EGFR-EGF-2	↔	EGFR-EGF-2-p
 Parameter('kf_EGFR_EGF_phos', 1.864)
@@ -261,7 +212,7 @@ Rule('EGFR_autophosphorylation',
 
 # 4. 2*Her2	↔	Her2-2
 #     2 7,7 77 0.5*kf_Her2_dimer #Her2_dimerization TODO
-Parameter('kf_Her2_dimer', 2 * 4.98e-2)  # TODO
+Parameter('kf_Her2_dimer', 4.98e-2)  # TODO
 Parameter('kr_Her2_dimer', 0.1756)
 Rule('Her2_dimerization',
      Her2(d=None, grb2_shc=None, cpacp=None, state='u') + Her2(d=None, grb2_shc=None, cpacp=None, state='u') |
@@ -278,7 +229,7 @@ Rule('Her2_2_phosphorylation',
 
 # 6. EGFR-EGF-2-p+Grb2	↔	EGFR-EGF-2-p-Grb2	1.068E0±3.282E0	7.018E-1±4.517E-1	-
 #   202 9,140 162 2*kf_EGFR_EGF_2_p_binds_Grb2 #EGFR_EGF_2_p_binds_Grb2 TODO
-Parameter('kf_EGFR_EGF_2_p_binds_Grb2', 1.068 / 2)  # TODO
+Parameter('kf_EGFR_EGF_2_p_binds_Grb2', 1.068)  # TODO
 Parameter('kr_EGFR_EGF_2_p_binds_Grb2', 0.7018)
 Rule('EGFR_EGF_2_p_binds_Grb2',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='extra') %
@@ -304,7 +255,7 @@ Rule('EGFR_EGF_2_p_Grb2_binds_Sos',
 # 8. EGFR-EGF-2-p-Grb2-Sos	↔	EGFR-EGF-2-p+Grb2-Sos	1.159E0±2.35E0	5.034E-2±6.075E-2	-
 #   203 78,140 163 2*kr_EGFR_EGF_2_p_releases_Grb2_Sos #_reverse_EGFR_EGF_2_p_releases_Grb2_Sos TODO
 Parameter('kf_EGFR_EGF_2_p_releases_Grb2_Sos', 1.159)
-Parameter('kr_EGFR_EGF_2_p_releases_Grb2_Sos', 5.034 / 2)  # TODO
+Parameter('kr_EGFR_EGF_2_p_releases_Grb2_Sos', 5.034)  # TODO
 Rule('EGFR_EGF_2_p_releases_Grb2_Sos',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
@@ -344,13 +295,13 @@ Rule('EGFR_EGF_2_p_Grb2_Sos_activates_Ras',
      Ras(sos=7, gap=None, raf=None, state='GDP') >>
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
-     Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=7, pi3k=None) %
-     Ras(sos=7, gap=None, raf=None, state='GTP'),
+     Grb2(r1=4, r2=5, sos=6, shc=None) % Sos(grb2=6, ras_erk=None, pi3k=None) +
+     Ras(sos=None, gap=None, raf=None, state='GTP'),
      kcat_EGFR_EGF_2_p_Grb2_Sos_binds_RasGDP)
 
 # 12. Her2-2-p+Grb2	↔	Her2-2-p-Grb2	1.976E-2±2.734E-2	9.558E-1±8.677E-1	-
 #   161 9,123 141 2*kf_Her2_2_p_binds_Grb2 #Her2_2_p_binds_Grb2   TODO
-Parameter('kf_Her2_2_p_binds_Grb2', 1.976E-1 / 2)  # TODO
+Parameter('kf_Her2_2_p_binds_Grb2', 1.976E-1)  # TODO
 Parameter('kr_Her2_2_p_binds_Grb2', 9.558E-1)
 Rule('Her2_2_p_binds_Grb2',
      Her2(d=3, grb2_shc=None, cpacp=None, state='p') %
@@ -378,7 +329,7 @@ Rule('Her2_2_p_Grb2_binds_Sos',
 # 14. Her2-2-p-Grb2-Sos	↔	Her2-2-p+Grb2-Sos	3.623E-2±2.45E-2	5.343E-2±5.586E-2	-
 #   162 78,123 142 2*kr_Her2_2_p_Grb2_Sos_dissoc #_reverse_Her2_2_p_Grb2_Sos_dissoc TODO
 Parameter('kf_Her2_2_p_Grb2_Sos_dissoc', 3.623E-2)
-Parameter('kr_Her2_2_p_Grb2_Sos_dissoc',  5.343E-2 / 2)  # TODO
+Parameter('kr_Her2_2_p_Grb2_Sos_dissoc',  5.343E-2)  # TODO
 Rule('Her2_2_p_Grb2_Sos_dissoc',
      Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
      Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
@@ -446,7 +397,7 @@ Rule('EGFR_EGF_2_p_Shc_phos_Shc_p',
 # 19. EGFR-EGF-2-p-Shc-p	↔	EGFR-EGF-2-p+Shc-p	1.464E0±1.058E0	6.464E-3±8.466E-3	-
 #   210 14,140 166 2*kr_EGFR_EGF_2_p_Shc_p_dissoc #_reverse_EGFR_EFG_2_p_Shc_p_dissoc TODO
 Parameter('kf_EGFR_EGF_2_p_Shc_p_dissoc', 1.464)
-Parameter('kr_EGFR_EGF_2_p_Shc_p_dissoc', 6.464E-3 / 2)  # TODO
+Parameter('kr_EGFR_EGF_2_p_Shc_p_dissoc', 6.464E-3)  # TODO
 Rule('EGFR_EFG_2_p_Shc_p_dissoc',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
@@ -496,7 +447,7 @@ Rule('EGFR_EFG_2_p_Shc_p_Grb2_binds_Sos',
 # 23	EGFR-EGF-2-p-Shc-p-Grb2-Sos	↔	EGFR-EGF-2-p+Shc-p-Grb2-Sos	9.887E-1±1.048E0	1.562E-3±1.142E-3	-
 #   211 124,140 167 2*kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc #_reverse_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc TODO
 Parameter('kf_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc', 9.887E-1)
-Parameter('kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc', 1.562E-3 / 2)  # TODO
+Parameter('kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc', 1.562E-3)  # TODO
 Rule('EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
@@ -623,7 +574,7 @@ Rule('Her2_2_p_Shc_p_Grb2_binds_Sos',
 # 32	Her2-2-p-Shc-p-Grb2-Sos	↔	Her2-2-p+Shc-p-Grb2-Sos	9.861E-1±1.159E0	1.294E-2±3.787E-2	-
 #   166 123,124 145 2*kr_Her2_2_p_releases_Shc_p_Grb2_Sos #_reverse_Her2_2_p_releases_Shc_p_Grb2_Sos TODO
 Parameter('kf_Her2_2_p_releases_Shc_p_Grb2_Sos', 9.861E-1)
-Parameter('kr_Her2_2_p_releases_Shc_p_Grb2_Sos', 1.294E-2 / 2)  # TODO
+Parameter('kr_Her2_2_p_releases_Shc_p_Grb2_Sos', 1.294E-2)  # TODO
 Rule('Her2_2_p_releases_Shc_p_Grb2_Sos',
      Her2(d=3, grb2_shc=4, cpacp=None, state='p') %
      Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
@@ -667,14 +618,14 @@ Rule('Her2_2_p_Shc_p_Grb2_Sos_activates_Ras',
      Her2(d=3, grb2_shc=5, cpacp=None, state='p') %
      Shc(r1=4, r2=5, grb2=6, state='p') %
      Grb2(r1=None, r2=None, sos=7, shc=6) %
-     Sos(grb2=7, ras_erk=8, pi3k=None) %
-     Ras(sos=8, gap=None, raf=None, state='GTP'),
+     Sos(grb2=7, ras_erk=None, pi3k=None) +
+     Ras(sos=None, gap=None, raf=None, state='GTP'),
      kcat_Her2_2_p_Shc_p_Grb2_Sos_activates_Ras)
 
 # 35	Her2-2-p+cPAcP	↔	Her2-2-p-cPAcP	1.707E1±1.581E1	5.325E-2±3.92E-2	-
 # 36	Her2-2-p-cPAcP	→	Her2-2+cPAcP	-	-	2.012E1±2.021E1
 #   167 15,123 146 2*kf_Her2_2_p_cPAcP_dephos #Her2_2_p_binds_cPAcP TODO
-Parameter('kf_Her2_2_p_cPAcP_dephos', 17.07 / 2)  # TODO
+Parameter('kf_Her2_2_p_cPAcP_dephos', 17.07)  # TODO
 Parameter('kr_Her2_2_p_cPAcP_dephos', 5.325e-2)
 Parameter('kcat_Her2_2_p_cPAcP_dephos', 20.12)
 Rule('Her2_2_p_binds_cPAcP',
@@ -693,24 +644,24 @@ Rule('Her2_2_p_cPAcP_dephos',
 # 37	Her2-2+sPAcP	↔	Her2-2-sPAcP	8.951E0±9.414E0	1.248E-3±7.101E-4	-
 # 38	Her2-2-sPAcP	→	Her2-2-p+sPAcP	-	-	2.288E1±2.252E1
 #    69 17,77 125 2*kf_Her2_2_binds_sPAcP #Her2_2_binds_sPAc TODO
-Parameter('kf_Her2_2_binds_sPAcP', 8.951E0 / 2)  # TODO
+Parameter('kf_Her2_2_binds_sPAcP', 8.951E0)  # TODO
 Parameter('kr_Her2_2_binds_sPAcP', 1.248E-3)
 Parameter('kcat_Her2_2_sPAcP_phos_Her2_2_p', 2.288E1)
 Rule('Her2_2_binds_sPAcP',
      Her2(d=3, grb2_shc=None, cpacp=None, state='u') %
      Her2(d=3, grb2_shc=None, cpacp=None, state='u') +
-     sPAcP(r1=None, r2=None, loc='extra') |
+     sPAcP(r1=None, r2=None, loc='intra') |
      Her2(d=3, grb2_shc=None, cpacp=4, state='u') %
      Her2(d=3, grb2_shc=None, cpacp=5, state='u') %
-     sPAcP(r1=4, r2=5, loc='extra'),
+     sPAcP(r1=4, r2=5, loc='intra'),
      kf_Her2_2_binds_sPAcP, kr_Her2_2_binds_sPAcP)
 Rule('Her2_2_sPAcP_phos_Her2_2_p',
      Her2(d=3, grb2_shc=None, cpacp=4, state='u') %
      Her2(d=3, grb2_shc=None, cpacp=5, state='u') %
-     sPAcP(r1=4, r2=5, loc='extra')  >>
+     sPAcP(r1=4, r2=5, loc='intra')  >>
      Her2(d=3, grb2_shc=None, cpacp=None, state='p') %
      Her2(d=3, grb2_shc=None, cpacp=None, state='p') +
-     sPAcP(r1=None, r2=None, loc='extra'),
+     sPAcP(r1=None, r2=None, loc='intra'),
      kcat_Her2_2_sPAcP_phos_Her2_2_p)
 
 # 39	Ras-GTP+GAP	↔	Ras-GTP-GAP	1.032E-1±1.526E-1	1.149E0±1.23E0	-
@@ -807,14 +758,14 @@ Parameter('kcat_ERK_activates_MEK_pp', 1.095E1)
 Rule('ERK_binds_MEK_pp',
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='u') +
      MEK(raf=None, erk=None, pase2=None, state='pp') |
-     ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None,state='u') %
+     ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None, state='u') %
      MEK(raf=None, erk=1, pase2=None, state='pp'),
      kf_ERK_binds_MEK_pp, kr_ERK_binds_MEK_pp)
 Rule('ERK_to_ERK_p_by_MEK_pp',
      ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None, state='u') %
-     MEK(state='pp', erk=1) >>
+     MEK(raf=None, erk=1, pase2=None, state='pp') >>
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='p') +
-     MEK(state='pp', erk=None),
+     MEK(raf=None, erk=None, pase2=None, state='pp'),
      kcat_ERK_activates_MEK_pp)
 
 # 51	ERK-p+MEK-pp	↔	ERK-p-MEK-pp	2.09E-3±1.47E-3	3.124E0±8.012E0	-
@@ -830,9 +781,9 @@ Rule('ERK_p_binds_MEK_pp',
      kf_ERK_p_binds_MEK_pp, kr_ERK_p_binds_MEK_pp)
 Rule('ERK_p_to_ERK_pp_by_MEK_pp',
      ERK(ar=None, mek=1, pase3=None, sos=None, ets=None, ap1=None,state='p') %
-     MEK(state='pp', erk=1) >>
+     MEK(raf=None, erk=1, pase2=None, state='pp') >>
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') +
-     MEK(state='pp', erk=None),
+     MEK(raf=None, erk=None, pase2=None, state='pp'),
      kcat_ERK_p_activates_MEK_pp)
 
 # 53	MEK-p+Pase2	↔	MEK-p-Pase2	1.04E-3±1.072E-3	7.569E0±1.607E1	-
@@ -1030,7 +981,7 @@ Rule('Her2_2_p_Shc_p_Grb2_releases_Sos_ERK_pp',
 # 69	EGF	→	EGFi	-	-	0E0±0E0
 Parameter('k_EGF_internalize', 0)
 Rule('EGF_internalize',
-     EGF(r=None,loc='extra') >> EGF(r=None,loc='intra'),
+     EGF(r=None, loc='extra') >> EGF(r=None, loc='intra'),
      k_EGF_internalize)
 
 # 70	EGFR	↔	EGFRi	1.179E-2±1.056E-2	1.599E-1±2.308E-1	-
@@ -1052,8 +1003,8 @@ Rule('EGFR_EGF_internalize',
 Parameter('kf_EGFRi_binds_EGFi', 1.041E0)
 Parameter('kr_EGFRi_binds_EGFi', 1.251E-1)
 Rule('EGFRi_binds_EGFi',
-     EGF(r=None,loc='intra') + EGFR(l=None, d=None, grb2_shc=None, state='u', loc='intra') |
-     EGF(r=1,loc='intra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='intra'),
+     EGFR(l=None, d=None, grb2_shc=None, state='u', loc='intra') + EGF(r=None, loc='intra') |
+     EGFR(l=1, d=None, grb2_shc=None, state='u', loc='intra') % EGF(r=1, loc='intra'),
      kf_EGFRi_binds_EGFi, kr_EGFRi_binds_EGFi)
 
 # 73	EGFR-EGF-2	→	EGFR-EGF-2i	-	-	6.648E-3±4.899E-3
@@ -1067,7 +1018,7 @@ Rule('EGFR_EGF_2_internalize',
 
 # 74	2*EGFR-EGFi	↔	EGFR-EGF-2i	1.432E-2±1.301E-2	4.332E0±7.81E0	-
 #    94 90,90 126 0.5*kf_2_EGFR_EGFi_to_EGFR_EGF_2i #dimerize_2_EGFR_EGFi TODO
-Parameter('kf_2_EGFR_EGFi_to_EGFR_EGF_2i', 2 * 1.432E-2)  # TODO
+Parameter('kf_2_EGFR_EGFi_to_EGFR_EGF_2i', 1.432E-2)  # TODO
 Parameter('kr_2_EGFR_EGFi_to_EGFR_EGF_2i', 4.332E0)
 Rule('dimerize_2_EGFR_EGFi',
      EGF(r=1, loc='intra') % EGFR(l=1, d=None, grb2_shc=None, state='u', loc='intra') +
@@ -1100,7 +1051,7 @@ Parameter('k_EGFR_EGF_2_p_Grb2_internalize', 7.874E-2)
 Rule('EGFR_EGF_2_p_Grb2_internalize',
      EGF(r=1, loc='extra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='extra') %
      EGF(r=2, loc='extra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='extra') %
-     Grb2(r1=4, r2=5, sos=None, shc=None)>>
+     Grb2(r1=4, r2=5, sos=None, shc=None) >>
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
      Grb2(r1=4, r2=5, sos=None, shc=None),
@@ -1209,7 +1160,7 @@ Rule('EGFR_EGF_2_pi_Grb2_Sos_releases_ERK_pp',
 
 # 86	EGFR-EGF-2-pi+Shc	↔	EGFR-EGF-2-pi-Shc	1 .367E-1±1.947E-1	6.82E0±6.97E0	-
 #   227 13,147 174 2*kf_EGFR_EGF_2_pi_binds_Shc #EGFR_EGF_2_pi_binds_Shc TODO
-Parameter('kf_EGFR_EGF_2_pi_binds_Shc', 1.367E-1 / 2)  # TODO
+Parameter('kf_EGFR_EGF_2_pi_binds_Shc', 1.367E-1)  # TODO
 Parameter('kr_EGFR_EGF_2_pi_binds_Shc', 6.82E0)
 Rule('EGFR_EGF_2_pi_binds_Shc',
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='intra') %
@@ -1256,11 +1207,11 @@ Rule('EGFR_EGF_2_p_Shc_p_internalize',
 # 90	EGFR-EGF-2-pi-Shc-p	↔	EGFR-EGF-2-pi+Shc-p	6.97E0±1.16E1	1.036E-3±7.374E-4	-
 #   228 14,147 174 2*kr_EGFR_EGF_2_pi_Shc_p_dissoc #_reverse_EGFR_EGF_2_p_Shc_p_dissoc TODO
 Parameter('kf_EGFR_EGF_2_pi_Shc_p_dissoc', 6.97E0)
-Parameter('kr_EGFR_EGF_2_pi_Shc_p_dissoc', 1.036E-3 / 2)  # TODO
+Parameter('kr_EGFR_EGF_2_pi_Shc_p_dissoc', 1.036E-3)  # TODO
 Rule('EGFR_EGF_2_p_Shc_p_dissoc',
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
-     Shc(r1=4, r2=5, grb2=None, state='u') |
+     Shc(r1=4, r2=5, grb2=None, state='p') |
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=None, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=None, state='p', loc='intra') +
      Shc(r1=None, r2=None, grb2=None, state='p'),
@@ -1319,7 +1270,7 @@ Rule('EGFR_EGF_2_p_Shc_p_Grb2_Sos_internalize',
 # 95	EGFR-EGF-2-pi-Shc-p-Grb2-Sos	↔	EGFR-EGF-2-pi+Shc-p-Grb2-Sos	3.537E0±3.537E0	3.606E-4±3.165E-4	-
 #   229 124,147 175 2*kr_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos #_reverse_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos TODO
 Parameter('kf_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos', 3.537E0)
-Parameter('kr_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos', 3.606E-4 / 2)  # TODO
+Parameter('kr_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos', 3.606E-4)  # TODO
 Rule('EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos',
      EGF(r=1, loc='intra') % EGFR(l=1, d=3, grb2_shc=4, state='p', loc='intra') %
      EGF(r=2, loc='intra') % EGFR(l=2, d=3, grb2_shc=5, state='p', loc='intra') %
@@ -1388,16 +1339,17 @@ Rule('EGFR_EGF_2_pi_Shc_p_Grb2_Sos_ERKpp_release_Sos_ERKpp',
 Parameter('kf_ERKpp_phos_AR', 1.873e-3)
 Parameter('kr_AERKpp_phos_AR', 0.388)
 Parameter('kcat_ERKpp_phos_AR', 2.57E-2)
+
 Rule('AR_binds_ERKpp',
-     AR(lig=None, ar=None, erk=None, pase5=None, state='u') +
+     AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='u') +
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') |
-     AR(lig=None, ar=None, erk=1, pase5=None, state='u') %
+     AR(lig=None, ar=None, erk=1, pase5=None, gene=None, state='u') %
      ERK(ar=1, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
      kf_ERKpp_phos_AR, kr_AERKpp_phos_AR)
 Rule('AR_ERKpp_phosphorylates_AR',
-     AR(lig=None, ar=None, erk=1, pase5=None, state='u') %
+     AR(lig=None, ar=None, erk=1, pase5=None, gene=None, state='u') %
      ERK(ar=1, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') >>
-     AR(lig=None, ar=None, erk=None, pase5=None, state='p') +
+     AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='p') +
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp'),
      kcat_ERKpp_phos_AR)
 
@@ -1414,8 +1366,8 @@ Rule('T_converts_to_DHT', T(b=1, loc='intra') % Rase5a(t=1) >> DHT(b=None) + Ras
 Parameter('kf_AR_binds_HSP', 9.162e-3)
 Parameter('kr_AR_binds_HSP', 1.01e-3)
 Rule('AR_binds_HSP',
-     AR(lig=None, ar=None, erk=None, pase5=None, state='u') + HSP(ar=None) |
-     AR(lig=1, ar=None, erk=None, pase5=None, state='u') % HSP(ar=1),
+     AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='u') + HSP(ar=None) |
+     AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='u') % HSP(ar=1),
      kf_AR_binds_HSP, kr_AR_binds_HSP)
 
 # 105	AR+T	↔	AR-T	5.289E-3±4.359E-3	9.361E-4±1.289E-3	-
@@ -1443,7 +1395,7 @@ Rule('AR_p_binds_AR_p_T',
 
 # 108	2*AR-p-T	↔	AR-p-T-2	5.835E-1±1.26E0	5.149E-4±2.812E-4	-
 #   174 127,127 149 0.5*kon_AR_p_T_dimerize #AR_p_T_dimerizes TODO
-Parameter('kon_AR_p_T_dimerize', 2 * 0.5835)  # TODO
+Parameter('kon_AR_p_T_dimerize', 0.5835)  # TODO
 Parameter('koff_AR_p_T_dimerize', 5.149e-4)
 Rule('AR_p_T_dimerizes',
      AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % T(b=1, loc='intra') +
@@ -1454,7 +1406,7 @@ Rule('AR_p_T_dimerizes',
 
 # 109	2*AR-p	↔	AR-p-2	2.848E-1±4.904E-1	1.281E-1±2.018E-1	-
 #    24 50,50 95 0.5*kon_AR_p_dimerize #AR_p_dimerizes TODO
-Parameter('kon_AR_p_dimerize', 2 * 0.2848)  # TODO
+Parameter('kon_AR_p_dimerize', 0.2848)  # TODO
 Parameter('koff_AR_p_dimerize', 0.1281)
 Rule('AR_p_dimerizes',
      AR(lig=None, ar=None, erk=None, pase5=None, gene=None, state='p') +
@@ -1499,7 +1451,7 @@ Rule('AR_p_DHT_binds_AR_p',
 
 # 114	2*AR-p-DHT	↔	AR-p-DHT-2	1.026E0±1.066E0	1.013E-3±1.461E-3	-
 #   177 128,128 152 0.5*kf_AR_p_DHT_binds_AR_p_DHT #AR_p_DHT_binds_AR_p_DHT TODO
-Parameter('kf_AR_p_DHT_binds_AR_p_DHT', 2 * 1.026)  # TODO
+Parameter('kf_AR_p_DHT_binds_AR_p_DHT', 1.026)  # TODO
 Parameter('kr_AR_p_DHT_binds_AR_p_DHT', 1.013E-3)
 Rule('AR_p_DHT_binds_AR_p_DHT',
      AR(lig=1, ar=None, erk=None, pase5=None, gene=None, state='p') % DHT(b=1) +
@@ -1850,7 +1802,7 @@ Rule('EGF_intra_degrades',
 
 # 231	2*cPAcP	↔	cPAcP-2	8.195E-2±1.868E-1	9.026E-2±6.808E-2	-
 #    43 15,15 110 0.5*kf_cPAcP_dimer #cPAcP_dimerize  TODO
-Parameter('kf_cPAcP_dimer', 2 * 8.195E-2)  # TODO
+Parameter('kf_cPAcP_dimer', 8.195E-2)  # TODO
 Parameter('kr_cPAcP_dimer', 9.026E-2)
 Rule('cPAcP_dimerize',
      cPAcP(d=None, q=None, h1=None, h2=None) + cPAcP(d=None, q=None,  h1=None, h2=None) |
@@ -1870,7 +1822,7 @@ Rule('cPAcP_dimer_dimerize_to_tetramer',
 # 233	2*Her2-2-p+cPAcP-2	↔	2Her2-2-p-cPAcP-2	1.292E2±3.518E2	2.069E-1±2.448E-1	-
 # 234	2Her2-2-p-cPAcP-2	→	2*Her2-2+cPAcP-2	-	-	9.256E0±6.196E0
 #   181 110,123,123 155 4*kf_2Her2_2_p_binds_cPAcP_2 #bind_2Her2_2_p_to_cPAcP_2 TODO
-Parameter('kf_2Her2_2_p_binds_cPAcP_2', 1.292E2 / 4)  # TODO
+Parameter('kf_2Her2_2_p_binds_cPAcP_2', 1.292E2)  # TODO
 Parameter('kr_2Her2_2_p_binds_cPAcP_2', 2.069E-1)
 Parameter('kcat_2Her2_2_p_dephos_by_cPAcP_2', 9.256E0)
 Rule('bind_2Her2_2_p_to_cPAcP_2',
@@ -1893,7 +1845,7 @@ Rule('dephos_2Her2_2_p_by_cPAcP_2',
 # 235	4*Her2-2-p+cPAcP-4	↔	4Her2-2-p-cPAcP-4	1.306E1±1.071E1	1.127E-2±1.019E-2	-
 # 236	4Her2-2-p-cPAcP-4	→	4*Her2-2+cPAcP-4	-	-	7.811E0±5.607E0
 #   182 123,123,123,123,129 156 16*kf_4Her2_2_p_binds_cPAcP_4 #bind_4Her2_2_p_to_cPAcP_4 TODO
-Parameter('kf_4Her2_2_p_binds_cPAcP_4', 1.306E1 / 16)  # TODO
+Parameter('kf_4Her2_2_p_binds_cPAcP_4', 1.306E1)  # TODO
 Parameter('kr_4Her2_2_p_binds_cPAcP_4', 1.127E-2)
 Parameter('kcat_4Her2_2_p_dephos_by_cPAcP_4', 7.811E0)
 Rule('bind_4Her2_2_p_to_cPAcP_4',
@@ -1919,10 +1871,10 @@ Rule('dephos_4Her2_2_p_by_cPAcP_4',
      cPAcP(d=5, q=7, h1=9, h2=10) % cPAcP(d=5, q=8, h1=11, h2=12) %
      cPAcP(d=6, q=7, h1=13, h2=14) % cPAcP(d=6, q=8, h1=15, h2=16)
      >>
-     Her2(d=1, grb2_shc=None, cpacp=None, state='p') % Her2(d=1, grb2_shc=None, cpacp=None, state='u') +
-     Her2(d=2, grb2_shc=None, cpacp=None, state='p') % Her2(d=2, grb2_shc=None, cpacp=None, state='u') +
-     Her2(d=3, grb2_shc=None, cpacp=None, state='p') % Her2(d=3, grb2_shc=None, cpacp=None, state='u') +
-     Her2(d=4, grb2_shc=None, cpacp=None, state='p') % Her2(d=4, grb2_shc=None, cpacp=None, state='u') +
+     Her2(d=1, grb2_shc=None, cpacp=None, state='u') % Her2(d=1, grb2_shc=None, cpacp=None, state='u') +
+     Her2(d=2, grb2_shc=None, cpacp=None, state='u') % Her2(d=2, grb2_shc=None, cpacp=None, state='u') +
+     Her2(d=3, grb2_shc=None, cpacp=None, state='u') % Her2(d=3, grb2_shc=None, cpacp=None, state='u') +
+     Her2(d=4, grb2_shc=None, cpacp=None, state='u') % Her2(d=4, grb2_shc=None, cpacp=None, state='u') +
      cPAcP(d=5, q=7, h1=None, h2=None) % cPAcP(d=5, q=8, h1=None, h2=None) %
      cPAcP(d=6, q=7, h1=None, h2=None) % cPAcP(d=6, q=8, h1=None, h2=None),
      kcat_4Her2_2_p_dephos_by_cPAcP_4)
@@ -1963,12 +1915,12 @@ Rule('_4EBP1_eIF4E_phos_TOR_act',
 kf_kr_kcat = [[5.788e-2, 7.556e-2, 1.311e-2]]  # basal
 # 228	mRNA-cPAcP	→	[]	-	-	1.3E0±1.39E0
 k_mRNA_deg = 1.3
-# 121	AR-p-2+g-cPAcP	↔	AR-p-2-g-cPAcP	1.618E-3±1.482E-3	9.872E-5±6.594E-5	-
-# 122	AR-p-DHT-2+g-cPAcP	↔	AR-p-DHT-2-g-cPAcP	8.423E-4±1.136E-3	1.366E-7±1.582E-7	-
-# 123	AR-p-DHT-AR-p+g-cPAcP	↔	AR-p-DHT-AR-p-g-cPAcP	4.544E-3±3.674E-3	1.314E-7±1.111E-7	-
-# 124	AR-p-T-2+g-cPAcP	↔	AR-p-T-2-g-cPAcP	6.374E-2±3.979E-2	2.954E-4±4.596E-4	-
-# 125	AR-p-AR-p-T+g-cPAcP	↔	AR-p-AR-p-T-g-cPAcP	6.191E-2±4.34E-2	1.099E-4±1.07E-4	-
-# 126	AR-p-DHT-AR-p-T+g-cPAcP	↔	AR-p-DHT-AR-p-T-g-cPAcP	1.543E-1±1.874E-1	2.343E-4±3.372E-4	-
+# 121	g-cPAcP+AR-p-2	↔	AR-p-2-g-cPAcP	1.618E-3±1.482E-3	9.872E-5±6.594E-5	-
+# 122	g-cPAcP+AR-p-DHT-2	↔	AR-p-DHT-2-g-cPAcP	8.423E-4±1.136E-3	1.366E-7±1.582E-7	-
+# 123	g-cPAcP+AR-p-DHT-AR-p	↔	AR-p-DHT-AR-p-g-cPAcP	4.544E-3±3.674E-3	1.314E-7±1.111E-7	-
+# 124	g-cPAcP+AR-p-T-2	↔	AR-p-T-2-g-cPAcP	6.374E-2±3.979E-2	2.954E-4±4.596E-4	-
+# 125	g-cPAcP+AR-p-AR-p-T	↔	AR-p-AR-p-T-g-cPAcP	6.191E-2±4.34E-2	1.099E-4±1.07E-4	-
+# 126	g-cPAcP+AR-p-DHT-AR-p-T	↔	AR-p-DHT-AR-p-T-g-cPAcP	1.543E-1±1.874E-1	2.343E-4±3.372E-4	-
 tf_names_AR = ['AR_p_2', 'AR_p_DHT_2', 'AR_p_DHT_AR_p', 'AR_p_T_2', 'AR_p_T_AR_p', 'AR_p_DHT_AR_p_T']
 tf_species_AR = [
     AR(lig=None, ar=1, erk=None, pase5=None, gene=None, state='p') %
@@ -2010,7 +1962,7 @@ k_release = 1.185
 # 214	Rm-cPAcP	→	Ar-cPAcP	-	-	1.31E0±2.102E0
 k_elongate = 1.31
 # Ar-cPAcP	→	cPAcP+40S+60S+mRNA-cPAcP
-# 215	Ar-cPAcP	→	cPAcP+40S+60S+mRNA-cPAcP	-	-	1.612E0±1.219E0
+# 215	Ar-cPAcP	→	mRNA-cPAcP+40S+60S+cPAcP	-	-	1.612E0±1.219E0
 k_terminate = 1.612
 # 227	cPAcP	→	[]	-	-	1.208E-2±8.088E-3
 k_prot_deg = 1.208e-2
@@ -2020,14 +1972,14 @@ create_translation_rules(cPAcP, kf_kr, k_release, k_elongate, k_terminate, k_pro
 # 196	g-sPAcP+RNAp	↔	g-sPAcP-RNAp	4.894E-2±4.501E-2	1.238E-3±1.192E-3	-
 # 197	g-sPAcP-RNAp	→	g-sPAcP+RNAp+mRNA-sPAcP	-	-	6.989E-1±8.214E-1
 kf_kr_kcat = [[4.894e-2, 1.238e-3, 0.6989]]  # basal
-# # 230	mRNA-sPAcP	→	[]	-	-	1.12E-1±1.224E-1
+# 230	mRNA-sPAcP	→	[]	-	-	1.12E-1±1.224E-1
 k_mRNA_deg = 0.112
-# 127	AR-p-2+g-sPAcP	↔	AR-p-2-g-sPAcP	9.585E-2±1.272E-1	2.558E-2±3.325E-2	-
-# 128	AR-p-DHT-2+g-sPAcP	↔	AR-p-DHT-2-g-sPAcP	9.074E-6±1.236E-5	1.017E-1±6.467E-2	-
-# 129	AR-p-DHT-AR-p+g-sPAcP	↔	AR-p-DHT-AR-p-g-sPAcP	5.658E-6±4.624E-6	1.447E-1±1.972E-1	-
-# 130	AR-p-T-2+g-sPAcP	↔	AR-p-T-2-g-sPAcP	4.345E-3±2.721E-3	7.3E-2±1.85E-1	-
-# 131	AR-p-AR-p-T+g-sPAcP	↔	AR-p-AR-p-T-g-sPAcP	1.811E-2±5.092E-2	6.045E-3±4.406E-3	-
-# 132	AR-p-DHT-AR-p-T+g-sPAcP	↔	AR-p-DHT-AR-p-T-g-sPAcP	1.125E-2±3.516E-2	2.44E-2±3.7E-2	-
+# 127	g-sPAcP+AR-p-2	↔	AR-p-2-g-sPAcP	9.585E-2±1.272E-1	2.558E-2±3.325E-2	-
+# 128	g-sPAcP+AR-p-DHT-2	↔	AR-p-DHT-2-g-sPAcP	9.074E-6±1.236E-5	1.017E-1±6.467E-2	-
+# 129	g-sPAcP+AR-p-DHT-AR-p	↔	AR-p-DHT-AR-p-g-sPAcP	5.658E-6±4.624E-6	1.447E-1±1.972E-1	-
+# 130	g-sPAcP+AR-p-T-2	↔	AR-p-T-2-g-sPAcP	4.345E-3±2.721E-3	7.3E-2±1.85E-1	-
+# 131	g-sPAcP+AR-p-AR-p-T	↔	AR-p-AR-p-T-g-sPAcP	1.811E-2±5.092E-2	6.045E-3±4.406E-3	-
+# 132	g-sPAcP+AR-p-DHT-AR-p-T	↔	AR-p-DHT-AR-p-T-g-sPAcP	1.125E-2±3.516E-2	2.44E-2±3.7E-2	-
 k_tf_on_off = [[9.585e-2, 2.558e-2], [9.074e-6, 0.1017], [5.658e-6, 0.1447], [4.345e-3, 7.3e-2],
                [1.811e-2, 6.045e-3], [1.125e-2, 2.44e-2]]
 create_transcription_rules(sPAcP, kf_kr_kcat, k_mRNA_deg, tfs=list(zip(tf_species_AR, tf_names_AR)),
@@ -2046,7 +1998,7 @@ kf_kr = [
 k_release = 1.089
 # 220	Rm-sPAcP	→	Ar-sPAcP	-	-	1.572E0±1.147E0
 k_elongate = 1.572
-# 221	Ar-sPAcP	→	sPAcP+40S+60S+mRNA-sPAcP	-	-	1.474E0±1.459E0
+# 221	Ar-sPAcP	→	mRNA-sPAcP+40S+60S+sPAcP	-	-	1.474E0±1.459E0
 k_terminate = 1.474
 # 229	sPAcP	→	[]	-	-	7.162E-4±7.064E-4
 k_prot_deg = 7.162e-4
@@ -2059,14 +2011,14 @@ kf_kr_kcat = [[4.952e-5, 0.1104, 1.099e-2]]  # basal
 # 222	mRNA-CycD	→	[]	-	-	8.094E-1±6.348E-1
 k_mRNA_deg = 0.8094
 # 168	g-CycD+ETS-p	↔	g-CycD-ETS-p	1.38E-1±1.225E-1	1.26E0±1.424E0	-
+# 169	g-CycD-ETS-p+RNAp	↔	g-CycD-ETS-p-RNAp	2.931E-1±7.426E-1	9.037E-3±9.077E-3	-
+# 170	g-CycD-ETS-p-RNAp	→	g-CycD-ETS-p+RNAp+mRNA-CycD	-	-	1.156E-2±1.103E-2
 # 171	g-CycD+AP1-p	↔	g-CycD-AP1-p	3.726E-1±7.298E-1	2.171E0±3.083E0	-
+# 172	g-CycD-AP1-p+RNAp	↔	g-CycD-AP1-p-RNAp	4.288E-1±8.691E-1	2.945E-2±4.654E-2	-
+# 173	g-CycD-AP1-p-RNAp	→	g-CycD-AP1-p+RNAp+mRNA-CycD	-	-	3.292E-2±5.52E-2
 tf_names_CycD = ['ETS_p', 'AP1_p']
 tf_species_CycD = [ETS(erk_pase5=None, gene=None, state='p'), AP1(erk_pase6=None, gene=None, state='p')]
 k_tf_on_off = [[0.138, 1.26], [0.3726, 2.171]]  # ETS-p, AP1-p
-# 169	g-CycD-ETS-p+RNAp	↔	g-CycD-ETS-p-RNAp	2.931E-1±7.426E-1	9.037E-3±9.077E-3	-
-# 170	g-CycD-ETS-p-RNAp	→	g-CycD-ETS-p+RNAp+mRNA-CycD	-	-	1.156E-2±1.103E-2
-# 172	g-CycD-AP1-p+RNAp	↔	g-CycD-AP1-p-RNAp	4.288E-1±8.691E-1	2.945E-2±4.654E-2	-
-# 173	g-CycD-AP1-p-RNAp	→	g-CycD-AP1-p+RNAp+mRNA-CycD	-	-	3.292E-2±5.52E-2
 kf_kr_kcat.extend(
     [[0.2931, 9.037e-3, 1.156e-2],  # ETS-p
      [0.4288, 2.945e-2, 3.292e-2]]  # AP1-p
@@ -2087,7 +2039,7 @@ kf_kr = [
 k_release = 1.194
 # 202	Rm-CycD	→	Ar-CycD	-	-	9.399E-1±6.401E-1
 k_elongate = 0.9399
-# 203	Ar-CycD	→	CycD+40S+60S+mRNA-CycD	-	-	1.781E0±1.759E0
+# 203	Ar-CycD	→	mRNA-CycD+40S+60S+CycD	-	-	1.781E0±1.759E0
 k_terminate = 1.781
 # 224	CycD	→	[]	-	-	6.123E-3±5.87E-3
 k_prot_deg = 6.123e-3
@@ -2100,25 +2052,25 @@ kf_kr_kcat = [[9.158e-9, 1.29e-4, 2.873e-4]]  # basal
 # 223	mRNA-PSA	→	[]	-	-	1.389E-1±1.328E-1
 k_mRNA_deg = 0.1389
 # 176	g-PSA+AR-p-2	↔	g-PSA-AR-p-2	1.372E-1±4.477E-1	4.913E-3±3.906E-3	-
-# 179	g-PSA+AR-p-DHT-2	↔	g-PSA-AR-p-DHT-2	8.626E-2±5.139E-2	2.007E-4±2.664E-4	-
-# 182	g-PSA+AR-p-DHT-AR-p	↔	g-PSA-AR-p-DHT-AR-p	1.025E-2±1.364E-2	1.353E-4±2.42E-4	-
-# 185	g-PSA+AR-p-T-2	↔	g-PSA-AR-p-T-2	9.22E-5±1.021E-4	8.384E-4±8.525E-4	-
-# 188	g-PSA+AR-p-AR-p-T	↔	g-PSA-AR-p-AR-p-T	4.169E-5±3.125E-5	5.429E-3±1.32E-2	-
-# 191	g-PSA+AR-p-DHT-AR-p-T	↔	g-PSA-AR-p-DHT-AR-p-T	2.392E-4±1.671E-4	5.202E-4±3.549E-4	-
-k_tf_on_off = [[0.1372, 4.913e-3], [8.626e-2, 2.007e-4], [1.025e-2, 1.353e-4], [9.22e-5, 8.384e-4],
-               [4.169e-5, 5.429e-3], [2.392e-4, 5.202e-4]]
 # 177	g-PSA-AR-p-2+RNAp	↔	g-PSA-AR-p-2-RNAp	1.182E-4±9.273E-5	8.565E-5±6.869E-5	-
 # 178	g-PSA-AR-p-2-RNAp	→	g-PSA-AR-p-2+RNAp+mRNA-PSA	-	-	8.167E-2±8.195E-2
+# 179	g-PSA+AR-p-DHT-2	↔	g-PSA-AR-p-DHT-2	8.626E-2±5.139E-2	2.007E-4±2.664E-4	-
 # 180	g-PSA-AR-p-DHT-2+RNAp	↔	g-PSA-AR-p-DHT-2-RNAp	7.817E-2±7.669E-2	1.577E-4±3.931E-4	-
 # 181	g-PSA-AR-p-DHT-2-RNAp	→	g-PSA-AR-p-DHT-2+RNAp+mRNA-PSA	-	-	2.238E-2±1.652E-2
+# 182	g-PSA+AR-p-DHT-AR-p	↔	g-PSA-AR-p-DHT-AR-p	1.025E-2±1.364E-2	1.353E-4±2.42E-4	-
 # 183	g-PSA-AR-p-DHT-AR-p+RNAp	↔	g-PSA-AR-p-DHT-AR-p-RNAp	1.091E-4±1.097E-4	1.029E-5±8.85E-6	-
 # 184	g-PSA-AR-p-DHT-AR-p-RNAp	→	g-PSA-AR-p-DHT-AR-p+RNAp+mRNA-PSA	-	-	3.064E-4±2.688E-4
+# 185	g-PSA+AR-p-T-2	↔	g-PSA-AR-p-T-2	9.22E-5±1.021E-4	8.384E-4±8.525E-4	-
 # 186	g-PSA-AR-p-T-2+RNAp	↔	g-PSA-AR-p-T-2-RNAp	4.362E-4±9.551E-4	2.375E-4±3.218E-4	-
 # 187	g-PSA-AR-p-T-2-RNAp	→	g-PSA-AR-p-T-2+RNAp+mRNA-PSA	-	-	8.891E-5±5.851E-5
+# 188	g-PSA+AR-p-AR-p-T	↔	g-PSA-AR-p-AR-p-T	4.169E-5±3.125E-5	5.429E-3±1.32E-2	-
 # 189	g-PSA-AR-p-AR-p-T+RNAp	↔	g-PSA-AR-p-AR-p-T-RNAp	8.539E-5±1.306E-4	1.204E-4±1.07E-4	-
 # 190	g-PSA-AR-p-AR-p-T-RNAp	→	g-PSA-AR-p-AR-p-T+RNAp+mRNA-PSA	-	-	1.959E-4±2.315E-4
+# 191	g-PSA+AR-p-DHT-AR-p-T	↔	g-PSA-AR-p-DHT-AR-p-T	2.392E-4±1.671E-4	5.202E-4±3.549E-4	-
 # 192	g-PSA-AR-p-DHT-AR-p-T+RNAp	↔	g-PSA-AR-p-DHT-AR-p-T-RNAp	2.092E-4±2.523E-4	1.516E-4±1.413E-4	-
 # 193	g-PSA-AR-p-DHT-AR-p-T-RNAp	→	g-PSA-AR-p-DHT-AR-p-T+RNAp+mRNA-PSA	-	-	2.128E-4±2.825E-4
+k_tf_on_off = [[0.1372, 4.913e-3], [8.626e-2, 2.007e-4], [1.025e-2, 1.353e-4], [9.22e-5, 8.384e-4],
+               [4.169e-5, 5.429e-3], [2.392e-4, 5.202e-4]]
 kf_kr_kcat.extend(
     [[1.182e-4, 8.565e-5, 8.167e-2],  # AR-p-2
      [7.817e-2, 1.577e-4, 2.238e-2],  # AR-p-DHT-2
@@ -2143,118 +2095,115 @@ kf_kr = [
 k_release = 3.98e-4
 # 208	Rm-PSA	→	Ar-PSA	-	-	7.268E-3±8.931E-3
 k_elongate = 7.268e-3
-# 209	Ar-PSA	→	PSA+40S+60S+mRNA-PSA	-	-	3.797E-2±1.084E-1
+# 209	Ar-PSA	→	mRNA-PSA+40S+60S+PSA	-	-	3.797E-2±1.084E-1
 k_terminate = 3.797e-2
 # 225	PSA	→	[]	-	-	9.309E-6±7.499E-6
 k_prot_deg = 9.309e-6
 create_translation_rules(PSA, kf_kr, k_release, k_elongate, k_terminate, k_prot_deg)
 
-#   137 59,95 131 2*kon_g_cPAcP_AR_p_2 #g_cPAcP_binds_AR_p_2  TODO
-#   142 60,95 133 2*kon_g_sPAcP_AR_p_2 #g_sPAcP_binds_AR_p_2 TODO
-#   155 62,95 138 2*kon_g_PSA_AR_p_2 #g_PSA_binds_AR_p_2 TODO
-#   245 59,152 179 2*kon_g_cPAcP_AR_p_DHT_2 #g_cPAcP_binds_AR_p_DHT_2 TODO
-#   247 59,149 181 2*kon_g_cPAcP_AR_p_T_2 #g_cPAcP_binds_AR_p_T_2   TODO
-#   252 60,152 185 2*kon_g_sPAcP_AR_p_DHT_2 #g_sPAcP_binds_AR_p_DHT_2 TODO
-#   254 60,149 187 2*kon_g_sPAcP_AR_p_T_2 #g_sPAcP_binds_AR_p_T_2  TODO
-#   263 62,152 192 2*kon_g_PSA_AR_p_DHT_2 #g_PSA_binds_AR_p_DHT_2   TODO
-#   265 62,149 194 2*kon_g_PSA_AR_p_T_2 #g_PSA_binds_AR_p_T_2 TODO
-for kon in ['kon_g_cPAcP_AR_p_2', 'kon_g_sPAcP_AR_p_2', 'kon_g_PSA_AR_p_2', 'kon_g_cPAcP_AR_p_DHT_2',
-            'kon_g_cPAcP_AR_p_T_2', 'kon_g_sPAcP_AR_p_DHT_2', 'kon_g_sPAcP_AR_p_T_2', 'kon_g_PSA_AR_p_DHT_2',
-            'kon_g_PSA_AR_p_T_2']:
-    model.parameters[kon].value /= 2
-
+# Fix rate constants by dividing out multiplicative factors (lines are from the BNG NET file)
+mult_factor_lines = '''
+2 7,7 77 0.5*kf_Her2_dimer #Her2_dimerization
+24 50,50 95 0.5*kon_AR_p_dimerize #AR_p_dimerizes
+43 15,15 110 0.5*kf_cPAcP_dimer #cPAcP_dimerize
+64 76,76 122 0.5*kf_EGFR_EGF_dimerize #EGFR_EGF_dimerization
+69 16,77 125 kf_Her2_2_binds_sPAcP #Her2_2_binds_sPAcP
+94 90,90 126 0.5*kf_2_EGFR_EGFi_to_EGFR_EGF_2i #dimerize_2_EGFR_EGFi
+137 59,95 131 2*kon_g_cPAcP_AR_p_2 #g_cPAcP_binds_AR_p_2
+142 60,95 133 2*kon_g_sPAcP_AR_p_2 #g_sPAcP_binds_AR_p_2
+155 62,95 138 2*kon_g_PSA_AR_p_2 #g_PSA_binds_AR_p_2
+161 9,123 141 2*kf_Her2_2_p_binds_Grb2 #Her2_2_p_binds_Grb2
+162 78,123 142 2*kr_Her2_2_p_Grb2_Sos_dissoc #_reverse_Her2_2_p_Grb2_Sos_dissoc
+164 13,123 143 2*kf_He2*r2_2_p_binds_Shc #Her2_2_p_binds_Shc
+165 14,123 144 2*kr_Her2_2_p_binds_Shc_p #_reverse_Her2_2_p_binds_Shc_p
+166 123,124 145 2*kr_Her2_2_p_releases_Shc_p_Grb2_Sos #_reverse_Her2_2_p_releases_Shc_p_Grb2_Sos
+167 15,123 146 2*kf_Her2_2_p_cPAcP_dephos #Her2_2_p_binds_cPAcP
+174 127,127 149 0.5*kon_AR_p_T_dimerize #AR_p_T_dimerizes
+177 128,128 152 0.5*kf_AR_p_DHT_binds_AR_p_DHT #AR_p_DHT_binds_AR_p_DHT
+181 110,123,123 155 4*kf_2Her2_2_p_binds_cPAcP_2 #bind_2Her2_2_p_to_cPAcP_2
+182 123,123,123,123,129 156 16*kf_4Her2_2_p_binds_cPAcP_4 #bind_4Her2_2_p_to_cPAcP_4
+202 9,140 162 2*kf_EGFR_EGF_2_p_binds_Grb2 #EGFR_EGF_2_p_binds_Grb2
+203 78,140 163 2*kr_EGFR_EGF_2_p_releases_Grb2_Sos #_reverse_EGFR_EGF_2_p_releases_Grb2_Sos
+209 13,140 165 2*kf_EGFR_EFG_2_p_binds_Shc #EGFR_EGF_2_p_binds_Shc
+210 14,140 166 2*kr_EGFR_EGF_2_p_Shc_p_dissoc #_reverse_EGFR_EFG_2_p_Shc_p_dissoc
+211 124,140 167 2*kr_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc #_reverse_EGFR_EGF_2_p_Shc_p_Grb2_Sos_dissoc
+225 9,147 172 2*kf_EGFR_EGF_2_pi_binds_Grb2 #EGFR_EGF_2_pi_binds_Grb2
+226 78,147 173 2*kf_EGFR_EGF_2_pi_binds_Grb2_Sos #EGFR_EGF_2_pi_binds_Grb2_Sos
+227 13,147 174 2*kf_EGFR_EGF_2_pi_binds_Shc #EGFR_EGF_2_pi_binds_Shc
+228 14,147 175 2*kr_EGFR_EGF_2_pi_Shc_p_dissoc #_reverse_EGFR_EGF_2_p_Shc_p_dissoc
+229 124,147 176 2*kr_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos #_reverse_EGFR_EGF_2_pi_releases_Shc_p_Grb2_Sos
+245 59,152 180 2*kon_g_cPAcP_AR_p_DHT_2 #g_cPAcP_binds_AR_p_DHT_2
+247 59,149 182 2*kon_g_cPAcP_AR_p_T_2 #g_cPAcP_binds_AR_p_T_2
+252 60,152 186 2*kon_g_sPAcP_AR_p_DHT_2 #g_sPAcP_binds_AR_p_DHT_2
+254 60,149 188 2*kon_g_sPAcP_AR_p_T_2 #g_sPAcP_binds_AR_p_T_2
+263 62,152 193 2*kon_g_PSA_AR_p_DHT_2 #g_PSA_binds_AR_p_DHT_2
+265 62,149 195 2*kon_g_PSA_AR_p_T_2 #g_PSA_binds_AR_p_T_2
+'''
+divide_out_bng_multipliers(model, mult_factor_lines, verbose=False)
 
 # === OBSERVABLES ===
-
-"""Observable('Lig_free', EGF(r=None))
+"""
+Observable('Lig_free', EGF(r=None))
 Observable('Lig_bound', EGF(r=ANY))
 Observable('Rec_unphos', EGFR(state='u'))
-Observable('Rec_phos', EGFR(state='p'))"""
-Observable('Her2_p', Her2(state='p'))
-Observable('cPAcP_obs', cPAcP(h1=None, h2=None))
+Observable('Rec_phos', EGFR(state='p'))
+"""
+# Observable('Her2_p', Her2(state='p'), match='species')
+Observable('Her2_2_p',
+           Her2(d=3, grb2_shc=None, cpacp=None, state='p') % Her2(d=3, grb2_shc=None, cpacp=None, state='p'),
+           match='species')
+Observable('cPAcP_obs', cPAcP(d=None, q=None, h1=None, h2=None))
 Observable('PSA_obs', PSA())
+
 
 if __name__ == '__main__':
     import numpy as np
+    import pandas as pd
+    import os
     import matplotlib.pyplot as plt
     from pysb.simulator import ScipyOdeSimulator
+    from SIM_PROTOCOLS.sim_protocols import *
 
-    # simulation commands
-    sim = ScipyOdeSimulator(model, verbose=True, cleanup=True)
+    obs_to_plot = [['Her2_2_p', 'cPAcP_obs'],
+                   ['PSA_obs']]
 
-    print('Number of reactions:', len(model.reactions))
+    # experimental data
+    expt_datafile = os.path.join('DATA', 'Tasseff_2010.csv')
+    expt_data = pd.read_csv(expt_datafile)
 
-    # TODO: Currently, our model is generating 381 reactions and 221 species. The number of reactions is correct but the
-    #  number of species should be 211. Need to figure out which species are being created that shouldn't be.
+    # run simulation
+    solver = ScipyOdeSimulator(model, verbose=True, cleanup=True)
+    DHT_stimulation_10_nM = SequentialInjections(solver, t_equil=3600, time_perturb_value={0: ('DHT(b=None)', 10)})
+    observables = [obs for obs_list in obs_to_plot for obs in obs_list]
+    observables = list(dict.fromkeys(observables))
+    protocol_A = ScaleBkProtocol(DHT_stimulation_10_nM, observables, expt_data=expt_data)
+    tspan = np.linspace(0, 49 * 3600, 60 * 49 + 1)
+    param_values = [p.value for p in model.parameters]
+    result = protocol_A.run(tspan, param_values)
 
-    species = model.species
-    print('Number of species:', len(species))
-    quit()
-    for i, rxn in enumerate(model.reactions):
-        print('%d: %s' % (i, str(rxn)))
-        reactants = '[]' if len(rxn['reactants']) == 0 else str(species[rxn['reactants'][0]])
-        for j in range(1, len(rxn['reactants'])):
-            reactants += ' + %s' % str(species[rxn['reactants'][j]])
-        products = '[]' if len(rxn['products']) == 0 else str(species[rxn['products'][0]])
-        for j in range(1, len(rxn['products'])):
-            products += ' + %s' % str(species[rxn['products'][j]])
-        print('%s %s %s' % (reactants, '->', products))
-        quit()
-
-    quit()  # TODO: temporary while debugging the code (don't need to run the simulation)
-
-    # 1 hour pre-simulation
-    tspan = np.linspace(0, 3600, 61)
-    result_pre = sim.run(tspan=tspan)
-
-    # 49 hour simulation with DHT stimulation
-    tspan = np.linspace(3600,49*3600,60*49+1)
-    initials = result_pre.species[-1]
-    idx = [str(sp) for sp in model.species].index('DHT(b=None)')
-    initials[idx] = 10
-    result = sim.run(tspan=tspan, initials=initials)
-
-    '''rules_unidirectional = [rule for rule in model.rules if rule.rate_reverse is None]
-    rules_bidirectional = [rule for rule in model.rules if rule.rate_reverse is not None]
-    print('# of rules:', len(rules_unidirectional) + 2 * len(rules_bidirectional))
-    print('# of reactions:', len(model.reactions))
-
-    for j, rule in enumerate(model.rules):
-        rxns = []
-        for i, rxn in enumerate(model.reactions):
-            if rule.name in rxn['rule']:
-                rxns.append(rxn)
-        if len(rxns) != 1 and len(rxns) != 2:
-            print('Rule %d: %s' % (j, rule.name))
-            print(np.array(rxns))
-    print('Done!')
-    quit()
-
-    rule_names = np.array([rule.name for rule in model.rules])
-    rxn_rules = np.unique([rule_name for rxn in model.reactions for rule_name in rxn['rule']])
-    print(len(set(rule_names)-set(rxn_rules)))
-    print(np.array(list(set(rule_names) - set(rxn_rules))))'''
-
-
-    # plot results
-    '''plt.figure(constrained_layout=True)
-    for obs in model.observables:
-        plt.plot(tspan, result.observables[obs.name], lw=2, label=obs.name)
-    plt.xlabel('time')
-    plt.ylabel('concentration')
-    plt.legend(loc='best')'''
-
-    plt.figure(constrained_layout=True)
-    plt.plot(tspan/3600, result.observables['Her2_p'], lw=2, label='Her2_p')
-    plt.plot(tspan/3600, result.observables['cPAcP_obs'], lw=2, label='cPAcP_obs')
-    plt.xlabel('time (hr)')
-    plt.ylabel('concentration')
-    plt.legend(loc='best')
-
-    plt.figure(constrained_layout=True)
-    plt.plot(tspan / 3600, result.observables['PSA_obs'], lw=2, label='PSA_obs')
-    plt.xlabel('time (hr)')
-    plt.ylabel('concentration')
-    plt.legend(loc='best')
+    # plot experimental data and simulation results
+    markers = ['o', 's', '^', 'D', 'v', 'P', '*', 'X', '<', '>']
+    for obs_list in obs_to_plot:
+        plt.figure(constrained_layout=True)
+        for obs, marker in zip(obs_list, markers):
+            # experimental data
+            data = expt_data[expt_data['observable'] == obs]
+            times = data['time']
+            average = data['average']
+            stderr = data['stderr']
+            ax = plt.errorbar(times / 3600, average, yerr=stderr, fmt=marker, ms=8, mfc='None', mew=1.5, capsize=8, label=obs)
+            # simulated time course
+            plt.plot(tspan / 3600, result[obs], lw=2, color=ax.lines[0].get_color(), label=obs)
+        x_label = data['time_units'].unique()[0]
+        y_label = data['amount_units'].unique()[0]
+        # plt.xlabel('Time (%s)' % x_label, fontsize=16)
+        plt.xlabel('Time (hr)', fontsize=16)
+        plt.ylabel('Amount (%s)' % y_label, fontsize=16)
+        plt.tick_params(labelsize=16)
+        # fix the legend
+        handles, labels = plt.gca().get_legend_handles_labels()
+        n = len(handles) // 2
+        handles = list(zip(handles[:n], [h[0] for h in handles[n:]]))
+        plt.gca().legend(handles, labels[:n], loc='best', fontsize=14, frameon=False)
 
     plt.show()
