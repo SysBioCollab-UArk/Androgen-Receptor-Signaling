@@ -1541,11 +1541,11 @@ Parameter('kcat_AP1_binds_ERK_pp', 2.556E-2)
 Rule('AP1_binds_ERK_pp',
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') +
      AP1(erk_pase6=None, gene=None, state='u') |
-     ERK(ar=None, mek=None, pase3=None, sos=None, ets=1, ap1=None, state='pp') %
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=1, state='pp') %
      AP1(erk_pase6=1, gene=None, state='u'),
      kf_AP1_binds_ERK_pp, kr_AP1_binds_ERK_pp)
 Rule('AP1_phos_ERK_pp',
-     ERK(ar=None, mek=None, pase3=None, sos=None, ets=1, ap1=None, state='pp') %
+     ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=1, state='pp') %
      AP1(erk_pase6=1, gene=None, state='u') >>
      ERK(ar=None, mek=None, pase3=None, sos=None, ets=None, ap1=None, state='pp') +
      AP1(erk_pase6=None, gene=None, state='p'),
