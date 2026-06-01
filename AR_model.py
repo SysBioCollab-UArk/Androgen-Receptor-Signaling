@@ -81,7 +81,6 @@ Monomer('CycD')
 Monomer('PSA')
 
 # === INITIAL CONCENTRATIONS ===
-
 init_params = {
     # Monomer('EGF',  ['r','loc'], {'loc': ['extra','intra']})
     'EGF_loc_extra_0': 0,  # 8 nM
@@ -2149,10 +2148,8 @@ Observable('Rec_unphos', EGFR(state='u'))
 Observable('Rec_phos', EGFR(state='p'))
 """
 # Observable('Her2_p', Her2(state='p'), match='species')
-Observable('Her2_2_p',
-           Her2(d=3, grb2_shc=None, cpacp=None, state='p') % Her2(d=3, grb2_shc=None, cpacp=None, state='p'),
-           match='species')
-Observable('cPAcP_obs', cPAcP(d=None, q=None, h1=None, h2=None))
+Observable('Her2_2_p', Her2(state='p'))
+Observable('cPAcP_obs', cPAcP())
 Observable('PSA_obs', PSA())
 
 
@@ -2173,7 +2170,7 @@ if __name__ == '__main__':
 
     # run simulation
     solver = ScipyOdeSimulator(model, verbose=True, cleanup=True)
-    DHT_stimulation_10_nM = SequentialInjections(solver, t_equil=3600, time_perturb_value={0: ('DHT(b=None)', 10)})
+    DHT_stimulation_10_nM = SequentialInjections(solver, t_equil=86400, time_perturb_value={0: ('DHT(b=None)', 10)})
     observables = [obs for obs_list in obs_to_plot for obs in obs_list]
     observables = list(dict.fromkeys(observables))
     protocol_A = ScaleBkProtocol(DHT_stimulation_10_nM, observables, expt_data=expt_data)
