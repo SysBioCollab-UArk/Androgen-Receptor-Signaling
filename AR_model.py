@@ -2147,10 +2147,12 @@ Observable('Lig_bound', EGF(r=ANY))
 Observable('Rec_unphos', EGFR(state='u'))
 Observable('Rec_phos', EGFR(state='p'))
 """
-# Observable('Her2_p', Her2(state='p'), match='species')
-Observable('Her2_2_p', Her2(state='p'))
-Observable('cPAcP_obs', cPAcP())
-Observable('PSA_obs', PSA())
+Observable('Her2_p_tot', Her2(state='p'))
+Observable('cPAcP_tot', cPAcP())
+Observable('PSA_tot', PSA())
+
+# 1 Her2_p_tot  2*116,2*134,2*135,2*136,2*137,2*138,2*139,4*148,8*149,2*157,2*161,2*162,2*163,2*164,2*170,2*171
+# 2 cPAcP_tot   12,2*103,4*122,139,2*148,4*149
 
 
 if __name__ == '__main__':
@@ -2161,8 +2163,8 @@ if __name__ == '__main__':
     from pysb.simulator import ScipyOdeSimulator
     from SIM_PROTOCOLS.sim_protocols import *
 
-    obs_to_plot = [['Her2_2_p', 'cPAcP_obs'],
-                   ['PSA_obs']]
+    obs_to_plot = [['Her2_p_tot', 'cPAcP_tot'],
+                   ['PSA_tot']]
 
     # experimental data
     expt_datafile = os.path.join('DATA', 'Tasseff_2010.csv')
@@ -2170,7 +2172,8 @@ if __name__ == '__main__':
 
     # run simulation
     solver = ScipyOdeSimulator(model, verbose=True, cleanup=True)
-    DHT_stimulation_10_nM = SequentialInjections(solver, t_equil=86400, time_perturb_value={0: ('DHT(b=None)', 10)})
+
+    DHT_stimulation_10_nM = SequentialInjections(solver, t_equil=172800, time_perturb_value={0: ('DHT(b=None)', 10)})  # t_equil=86400 3600
     observables = [obs for obs_list in obs_to_plot for obs in obs_list]
     observables = list(dict.fromkeys(observables))
     protocol_A = ScaleBkProtocol(DHT_stimulation_10_nM, observables, expt_data=expt_data)
