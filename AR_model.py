@@ -2184,7 +2184,7 @@ if __name__ == '__main__':
 
     # run pre-simulation
     protocol = SimulationProtocol(solver)
-    n_hrs = 24 * 7
+    n_hrs = 24 * 10  # 10 days
     tspan = np.linspace(0, n_hrs * 3600, n_hrs * 100)
     param_values = [p.value for p in model.parameters]
     output = protocol.run(tspan, param_values)
