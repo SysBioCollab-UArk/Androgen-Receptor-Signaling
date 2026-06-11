@@ -2100,6 +2100,12 @@ k_terminate = 3.797e-2
 k_prot_deg = 9.309e-6
 create_translation_rules(PSA, kf_kr, k_release, k_elongate, k_terminate, k_prot_deg)
 
+# NEW RULE — keeps sPAcP(loc='extra') intact for future use
+Parameter('k_deg_sPAcP_extra', k_deg_sPAcP.value)  # New parameter — fixed, not sampled by PyDREAM
+Rule('sPAcP_extra_degrades',
+     sPAcP(r1=None, r2=None, loc='extra') >> None,
+     k_deg_sPAcP_extra)
+
 # Fix rate constants by dividing out multiplicative factors (lines are from the BNG NET file)
 mult_factor_lines = '''
 2 7,7 77 0.5*kf_Her2_dimer #Her2_dimerization
@@ -2162,6 +2168,9 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from pysb.simulator import ScipyOdeSimulator
     from SIM_PROTOCOLS.sim_protocols import *
+    import math
+    from pydream_util import get_fig_ncols
+    from itertools import cycle
 
     obs_to_plot = [['Her2_p_tot', 'cPAcP_tot'],
                    ['PSA_tot']]
@@ -2170,10 +2179,41 @@ if __name__ == '__main__':
     expt_datafile = os.path.join('DATA', 'Tasseff_2010.csv')
     expt_data = pd.read_csv(expt_datafile)
 
-    # run simulation
+    # simulator
     solver = ScipyOdeSimulator(model, verbose=True, cleanup=True)
 
-    DHT_stimulation_10_nM = SequentialInjections(solver, t_equil=172800, time_perturb_value={0: ('DHT(b=None)', 10)})  # t_equil=86400 3600
+    # run pre-simulation
+    protocol = SimulationProtocol(solver)
+    n_hrs = 24 * 7
+    tspan = np.linspace(0, n_hrs * 3600, n_hrs * 100)
+    param_values = [p.value for p in model.parameters]
+    output = protocol.run(tspan, param_values)
+
+    # plot all species
+    color_cycle = cycle(plt.rcParams['axes.prop_cycle'].by_key()['color'])
+    ncols = get_fig_ncols(len(model.species))
+    nrows = math.ceil(len(model.species)/ncols)
+    fig, axs = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, sharey=False, layout='compressed',
+                            figsize=(6.4 * 2, 4.8 * 3))
+    axs_flat = axs.flatten()
+    for i in range(len(model.species)):
+        axs_flat[i].plot(tspan / 3600, output['__s%d' % i], lw=2, color=next(color_cycle))
+        axs_flat[i].tick_params(axis='both', which='both', bottom=False, top=False, left=False, right=False,
+                                labelbottom=False, labelleft=False)
+        axs_flat[i].set_title('sp %d' % i)
+        axs_flat[i].axhline(y=1, ls='--', color='0.5')
+    # remove unused plots
+    for ax in axs_flat[len(model.species):]:
+        ax.remove()
+    fig.supxlabel('time (hr)')
+    fig.supylabel('concentration (nM)')
+
+    plt.show()
+    # quit()
+
+    # perform virtual experiment
+    DHT_stimulation_10_nM = SequentialInjections(solver, t_equil=n_hrs * 3600,
+                                                 time_perturb_value={0: ('DHT(b=None)', 10)})
     observables = [obs for obs_list in obs_to_plot for obs in obs_list]
     observables = list(dict.fromkeys(observables))
     protocol_A = ScaleBkProtocol(DHT_stimulation_10_nM, observables, expt_data=expt_data)
