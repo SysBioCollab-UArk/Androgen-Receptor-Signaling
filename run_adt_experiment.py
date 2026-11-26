@@ -28,19 +28,49 @@ sys.path.insert(0, PYDREAM_DIR)
 from run_ar_signaling_pydream import *
 from pysb import Observable, Monomer, Parameter, Rule, Initial
 from pysb.util import alias_model_components
-import csv
 import numpy as np
 
-model.reset_equations()  # clear out model.species, model.reactions, etc.
+### APPROACH ###
+# Phase 1: Recreate the `ParameterCalibration` object from the `run_ar_signaling_pydream` script used to generate the
+#          PyDREAM parameter samples. Then, load the parameter samples using `plot_pydream_output()` with
+#          `which_plots=2`. This indicates that only the log-likelihood and posterior distribution plots should be
+#          generated. In doing so, parameter values during the burn-in period and that fall below the specified
+#          log-likelihood threshold are discarded. The function returns the filtered parameter values, which we can then
+#          use to run perturbation experiments in Phase 2.
+# Phase 2: Add new Observables, Monomers, Parameters, Initials and Rules to the imported model object from
+#          `run_ar_signaling_pydream`. After doing this, need to call `model.reset_equations()` to regenerate the full
+#          lists of species and reactions, which is necessary for running the perturbation simulations. Create new
+#          `ScaleBkProtocol` simulation protocol objects, add new observables to the `observables` list if desired, and
+#          run the simulations using `ParameterCalibration.plot_timecourses()`. Make sure to save the simulation data by
+#          setting `save_sim_data` to True or as a string, which can include the directory path. We can use the data in
+#          the generated `SIM_DATA.csv` file to generate better looking figures later.
 
-# ── 1. Add observables to model imported from `run_ar_signaling_pydream`
+# ── 1. Recreate the calibrator from `run_ar_signaling_pydream`
+calibrator = ParameterCalibration(model,
+                                  expt_data_file,
+                                  sim_protocols=sim_protocols,
+                                  priors=custom_priors,
+                                  no_sample=no_sample,
+                                  param_expts_map=param_expts_map)
+
+# ── 2. Load and filter parameter samples
+kwargs = {'show_plots': True,
+          'plot_ll_args': {'cutoff': 2, 'fontsizes': {'labels': 14, 'ticks': 14, 'legend': 14}, 'leg_ncols': 2},
+          'plot_pd_args': {'sharex': 'all', 'fontsize': 28, 'labelsize': 24, 'bw_adjust': 3, 'plot_priors': True},
+          'plot_tc_args': {'separate_plots': False, 'save_sim_data': True},
+          'which_plots': 2}
+
+max_iter = None  # 50000  # Set this to `None` to use all the PyDREAM samples
+_, (param_samples, _, _, _), _ = plot_pydream_output(PYDREAM_DIR, calibrator, max_iter=max_iter, **kwargs)
+
+# ── 3. Add observables to model imported from `run_ar_signaling_pydream`
 alias_model_components()
 
 Observable('AR_p_tot',   AR(state='p'))
 Observable('ERK_pp_tot', ERK(state='pp'))
 Observable('CycD_tot',   CycD())
 
-# ── 2. Add ARi monomer and competitive binding rules to the model.
+# ── 4. Add ARi monomer and competitive binding rules to the model.
 #       ARi binds at the AR lig site (same site as DHT), preventing DHT binding. Binding kinetics initialized to DHT
 #       values as a baseline assumption. These parameters are NOT calibrated — they represent fixed drug properties.
 #       Components are defined at module scope (same pattern as Observable additions), so PySB's SelfExporter
@@ -55,13 +85,14 @@ alias_model_components()
 Rule('AR_binds_ARi', AR(lig=None) + ARi(b=None) | AR(lig=1) % ARi(b=1), kf_AR_binds_ARi, kr_AR_binds_ARi)
 Initial(ARi(b=None), ARi_0)
 
-# ── 3. Build simulation protocols for each ARi dose.
+# ── 5. Build simulation protocols for each ARi dose.
 #       Each condition uses the same calibrated parameters but a different ARi injection amount at t=0 alongside the
 #       standard 10 nM DHT. `expt_data` is imported from `run_ar_signaling_pydream`.
 ARi_doses_nM = [0, 2.5, 5, 10, 50, 100]
 condition_labels = [f'{d} nM ARi' if d > 0 else 'control (0 nM ARi)' for d in ARi_doses_nM]
 
 t_equil = 10 * 24 * 3600  # 10 days
+model.reset_equations()  # clear out model.species, model.reactions, etc.
 solver = ScipyOdeSimulator(model)
 
 adt_protocols = []
@@ -69,30 +100,12 @@ for dose in ARi_doses_nM:
     inj = SequentialInjections(solver, t_equil=t_equil,
                                time_perturb_value={0: [('DHT(b=None)', 10), ('ARi(b=None)', dose)]})
     adt_protocols.append(ScaleBkProtocol(inj, observables, expt_data=expt_data))
-
-# ── 4. Create the calibrator
-no_sample += ['kf_AR_binds_ARi', 'kr_AR_binds_ARi', 'ARi_0']
-calibrator = ParameterCalibration(model,
-                                  expt_data_file,
-                                  sim_protocols=adt_protocols,
-                                  priors=custom_priors,
-                                  no_sample=no_sample,
-                                  param_expts_map=param_expts_map)
-
-# ── 5. Load and filter posterior samples
-kwargs = {'show_plots': True,
-          'plot_ll_args': {'cutoff': 2, 'fontsizes': {'labels': 14, 'ticks': 14, 'legend': 14}, 'leg_ncols': 2},
-          'plot_pd_args': {'sharex': 'all', 'fontsize': 28, 'labelsize': 24, 'bw_adjust': 3, 'plot_priors': True},
-          'plot_tc_args': {'separate_plots': False, 'save_sim_data': True},
-          'which_plots': 2}
-
-max_iter = 50000  # Change this to `None` to use all the PyDREAM samples
-_, (param_samples, _, _, _), _ = plot_pydream_output(PYDREAM_DIR, calibrator, max_iter=max_iter, **kwargs)
+n_cond = len(adt_protocols)
 
 # ── 6. Run simulations
 tspan_days = np.linspace(0, 10 * 24 * 3600, 101)
+# expand the observables list
 observables += ['ERK_pp_tot', 'AR_p_tot', 'CycD_tot']  # First three are ['Her2_p_tot', 'cPAcP_tot', 'PSA_tot']
-n_cond = len(adt_protocols)
 
 ParameterCalibration.plot_timecourses(
     model,
@@ -110,5 +123,5 @@ ParameterCalibration.plot_timecourses(
     ylabels        = [['amount'] * len(observables)] * n_cond,
     leg_labels     = [[label] * len(observables) for label in condition_labels],
     save_sim_data  = os.path.join(PYDREAM_DIR, 'SIM_DATA'),
-    num_tc         = 10
+    num_tc         = None  # For debugging, set to an integer (e.g., 10) to limit the number of simulations to run
 )
