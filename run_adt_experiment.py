@@ -123,5 +123,5 @@ ParameterCalibration.plot_timecourses(
     ylabels        = [['amount'] * len(observables)] * n_cond,
     leg_labels     = [[label] * len(observables) for label in condition_labels],
     save_sim_data  = os.path.join(PYDREAM_DIR, 'SIM_DATA'),
-    num_tc         = None  # For debugging, set to an integer (e.g., 10) to limit the number of simulations to run
+    num_tc         = 10000  # None  # Set to an integer (e.g., 10) to limit the number of simulations to run
 )
